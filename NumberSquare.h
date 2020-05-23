@@ -5,7 +5,17 @@ class NumberSquare
 {
 public:
     NumberSquare(int row, int col, int box, int value);
+    NumberSquare();
+    NumberSquare(const NumberSquare&);
+    const NumberSquare& operator=(const NumberSquare&);
     ~NumberSquare();
+
+    int getRow();
+    int getCol();
+    int getBox();
+    int getVal()const;
+
+    void setVal(int v);
 private:
     int rowID;
     int columnID;

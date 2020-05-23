@@ -1,6 +1,6 @@
 #include "SudokuBoard.h"
 
-SudokuBoard::SudokuBoard(std::vector<int> boardValues)
+SudokuBoard::SudokuBoard(int boardValues[81])
 {
     //Assumed that passed array is of length 81 since this represents a standard sudoku board
     for(int i = 0; i < 81; i++)
@@ -29,11 +29,76 @@ SudokuBoard::SudokuBoard(std::vector<int> boardValues)
             box = 8;
 
         NumberSquare square(row, column, box, boardValues[i]);
-        this->board.push_back(square);
+        this->board[i] = square;
     }
 }
 
-SudokuBoard::SudokuBoard(NumberSquare &boardValues)
+SudokuBoard::SudokuBoard(NumberSquare boardValues[81])
 {
 
+}
+
+NumberSquare& SudokuBoard::operator[](int p)
+{
+    return this->board[p];
+}
+
+bool SudokuBoard::SolveSudoku()
+{
+    int blankID;
+    if(!findBlank(blankID))
+        return true;
+    for(int num = 1; num<=9; num++)
+    {
+        if(this->isLegal(blankID,num))
+        {
+            board[blankID].setVal(num);
+            if(SolveSudoku())
+                return true;
+
+            board[blankID].setVal(0);
+        }
+
+    }
+    return false;
+}
+
+bool SudokuBoard::findBlank(int& id)
+{
+    for(int i = 0; i < 81; i++)
+    {
+        if(this->board[i].getVal() == 0)
+        {
+            id = i;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool SudokuBoard::isLegal(int id, int num)
+{
+    //this is dreadfully inefficient
+    for(int i = 0; i < 81; i++)
+    {
+        if(i == id)
+            i++;
+        if((board[i].getCol() == board[id].getCol() ||
+            board[i].getRow() == board[id].getRow() ||
+            board[i].getBox() == board[id].getBox()) && board[i].getVal() == num)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+std::ostream& operator<<(std::ostream& out, const SudokuBoard& s)
+{
+    for(int i = 0; i < 81; i++)
+    {
+        if(i%9 == 0)
+            out<<"\n";
+        out<<s.board[i].getVal()<<" ";
+    }
+    return out;
 }

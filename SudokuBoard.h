@@ -8,10 +8,17 @@
 class SudokuBoard
 {
 public:
-    SudokuBoard(std::vector<int> boardValues);
-    SudokuBoard(NumberSquare &boardValues);
+    SudokuBoard(int boardValues[81]);
+    SudokuBoard(NumberSquare boardValues[81]);
+    NumberSquare& operator[](int p);
+
+    bool SolveSudoku(); //returns false if no solution exists
+
+    friend std::ostream& operator<<(std::ostream& out, const SudokuBoard& s);
 private:
-    std::vector<NumberSquare> board;
+    NumberSquare board[81];
+    bool isLegal(int id, int num);
+    bool findBlank(int& id); //returns false if no blanks are found
 };
 
 #endif // SUDOKUBOARD_H_INCLUDED
