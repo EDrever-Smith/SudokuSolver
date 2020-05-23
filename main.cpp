@@ -1,4 +1,6 @@
 #include <iostream>
+#include <QApplication>
+#include "Sudokugui.h"
 #include <vector>
 #include "SudokuBoard.h"
 using namespace std;
@@ -15,8 +17,13 @@ using namespace std;
 0,0,0, 0,0,0, 0,7,4,
 0,0,5, 2,0,6, 3,0,0};
 */
-int main()
+int main(int argc, char *argv[])
 {
+    QApplication a(argc, argv);
+    a.processEvents();
+    SudokuGui w;
+    w.show();
+    return a.exec();
     //Static array holding input sudoku puzzle to be solved. 0s represent free spaces
     int inputSudoku[81]      =   {3,0,6, 5,0,8, 4,0,0,
                                   5,2,0, 0,0,0, 0,0,0,
