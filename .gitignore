@@ -1,0 +1,9 @@
+*.layout
+*.depend
+*.exe
+*.obj
+*.autosave
+*.cbp
+build/
+bin/
+obj/
