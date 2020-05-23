@@ -10,6 +10,7 @@ class SudokuBoard
 public:
     SudokuBoard(int boardValues[81]);
     SudokuBoard(NumberSquare boardValues[81]);
+    SudokuBoard();
     NumberSquare& operator[](int p);
 
     bool SolveSudoku(); //returns false if no solution exists

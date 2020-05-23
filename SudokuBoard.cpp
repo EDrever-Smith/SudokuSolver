@@ -38,6 +38,8 @@ SudokuBoard::SudokuBoard(NumberSquare boardValues[81])
 
 }
 
+SudokuBoard::SudokuBoard(){}
+
 NumberSquare& SudokuBoard::operator[](int p)
 {
     return this->board[p];
