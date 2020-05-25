@@ -32,12 +32,45 @@ SudokuGui::~SudokuGui()
 void SudokuGui::generateLabels()
 {
     QGridLayout *layout = ui->gridLayout0;
+    QGridLayout *grid1 = ui->gridLayout1;
+    QGridLayout *grid2 = ui->gridLayout2;
+    QGridLayout *grid3 = ui->gridLayout3;
+    QGridLayout *grid4 = ui->gridLayout4;
+    QGridLayout *grid5 = ui->gridLayout5;
+    QGridLayout *grid6 = ui->gridLayout6;
+    QGridLayout *grid7 = ui->gridLayout7;
+    QGridLayout *grid8 = ui->gridLayout8;
+    QGridLayout *grid9 = ui->gridLayout9;
     labelsArray = new QLabel*[81];
     for(int id=0; id<81; id++)
     {
         labelsArray[id] = new QLabel(this);
         labelsArray[id]->setText(tr(" "));
-        layout->addWidget(labelsArray[id], int(id/9), id % 9);
+        labelsArray[id]->setStyleSheet("QLabel {"
+        "border-style: solid;"
+        "border-width: 1px;"
+        "border-color: black; "
+        "}");
+        labelsArray[id]->setAlignment(Qt::AlignCenter);
+        //layout->addWidget(labelsArray[id], int(id/9), id % 9);
+        if(id % 9 < 3 && id/9 <3)
+            grid1->addWidget(labelsArray[id],(id/9)%3, (id%9)%3);
+        else if (id % 9 < 6 && id/9 < 3)
+            grid2->addWidget(labelsArray[id],(id/9)%3, (id%9)%3);
+        else if (id % 9 < 9 && id/9 < 3)
+            grid3->addWidget(labelsArray[id],(id/9)%3, (id%9)%3);
+        else if (id % 9 < 3 && id/9 < 6)
+            grid4->addWidget(labelsArray[id],(id/9)%3, (id%9)%3);
+        else if (id % 9 < 6 && id/9 < 6)
+            grid5->addWidget(labelsArray[id],(id/9)%3, (id%9)%3);
+        else if (id % 9 < 9 && id/9 < 6)
+            grid6->addWidget(labelsArray[id],(id/9)%3, (id%9)%3);
+        else if (id % 9 < 3 && id/9 < 9)
+            grid7->addWidget(labelsArray[id],(id/9)%3, (id%9)%3);
+        else if (id % 9 < 6 && id/9 < 9)
+            grid8->addWidget(labelsArray[id],(id/9)%3, (id%9)%3);
+        else if (id % 9 < 9 && id/9 < 9)
+            grid9->addWidget(labelsArray[id],(id/9)%3, (id%9)%3);
     }
 }
 
