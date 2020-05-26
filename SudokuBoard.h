@@ -12,13 +12,12 @@ public:
     SudokuBoard(NumberSquare boardValues[81]);
     SudokuBoard();
     NumberSquare& operator[](int p);
-
+    bool isLegal(int id, int num);
     bool SolveSudoku(); //returns false if no solution exists
 
     friend std::ostream& operator<<(std::ostream& out, const SudokuBoard& s);
 private:
     NumberSquare board[81];
-    bool isLegal(int id, int num);
     bool findBlank(int& id); //returns false if no blanks are found
 };
 

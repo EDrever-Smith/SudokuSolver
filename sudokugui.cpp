@@ -78,7 +78,7 @@ void SudokuGui::generateLabels()
         else if (id % 9 < 9 && id/9 < 9)
             grid9->addWidget(lineEditsArray[id],(id/9)%3, (id%9)%3);
         //Possibly want to change this to the textEdited signal - its possible user could change value and forget to press return
-        connect(lineEditsArray[id], SIGNAL(returnPressed()), this, SLOT(updateNumberSquare()));
+        connect(lineEditsArray[id], SIGNAL(textEdited(QString)), this, SLOT(updateNumberSquare()));
     }
 }
 void SudokuGui::updateNumberSquare()
@@ -88,8 +88,12 @@ void SudokuGui::updateNumberSquare()
     {
         if(obj == lineEditsArray[i])
         {
-            board[i].setVal(lineEditsArray[i]->text().toInt());
-            std::cout<<board<<std::endl;
+            if(board.isLegal(i,lineEditsArray[i]->text().toInt()))
+            {
+                board[i].setVal(lineEditsArray[i]->text().toInt());
+                std::cout<<board<<std::endl;
+            }
+            else lineEditsArray[i]->setText(tr("")); //Users desired input breaks rules
         }
     }
 }
