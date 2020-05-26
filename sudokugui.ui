@@ -26,7 +26,7 @@
       <enum>QFrame::Plain</enum>
      </property>
      <property name="lineWidth">
-      <number>2</number>
+      <number>5</number>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -45,7 +45,7 @@
       <enum>QFrame::Plain</enum>
      </property>
      <property name="lineWidth">
-      <number>2</number>
+      <number>5</number>
      </property>
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -76,7 +76,7 @@
         <enum>QFrame::Plain</enum>
        </property>
        <property name="lineWidth">
-        <number>2</number>
+        <number>5</number>
        </property>
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -89,7 +89,7 @@
         <enum>QFrame::Plain</enum>
        </property>
        <property name="lineWidth">
-        <number>2</number>
+        <number>5</number>
        </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -102,7 +102,7 @@
         <enum>QFrame::Plain</enum>
        </property>
        <property name="lineWidth">
-        <number>2</number>
+        <number>5</number>
        </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -124,7 +124,7 @@
         <enum>QFrame::Plain</enum>
        </property>
        <property name="lineWidth">
-        <number>2</number>
+        <number>5</number>
        </property>
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -143,7 +143,7 @@
         <enum>QFrame::Plain</enum>
        </property>
        <property name="lineWidth">
-        <number>2</number>
+        <number>5</number>
        </property>
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -156,7 +156,7 @@
         <enum>QFrame::Plain</enum>
        </property>
        <property name="lineWidth">
-        <number>2</number>
+        <number>5</number>
        </property>
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -169,7 +169,7 @@
         <enum>QFrame::Plain</enum>
        </property>
        <property name="lineWidth">
-        <number>2</number>
+        <number>5</number>
        </property>
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -182,7 +182,7 @@
         <enum>QFrame::Plain</enum>
        </property>
        <property name="lineWidth">
-        <number>2</number>
+        <number>5</number>
        </property>
        <property name="midLineWidth">
         <number>0</number>
@@ -201,7 +201,7 @@
         <enum>QFrame::Plain</enum>
        </property>
        <property name="lineWidth">
-        <number>2</number>
+        <number>5</number>
        </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -214,7 +214,7 @@
         <enum>QFrame::Plain</enum>
        </property>
        <property name="lineWidth">
-        <number>2</number>
+        <number>5</number>
        </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -227,7 +227,7 @@
         <enum>QFrame::Plain</enum>
        </property>
        <property name="lineWidth">
-        <number>2</number>
+        <number>5</number>
        </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -240,7 +240,7 @@
         <enum>QFrame::Plain</enum>
        </property>
        <property name="lineWidth">
-        <number>2</number>
+        <number>5</number>
        </property>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -261,7 +261,7 @@
       <enum>QFrame::Plain</enum>
      </property>
      <property name="lineWidth">
-      <number>2</number>
+      <number>5</number>
      </property>
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -280,7 +280,7 @@
       <enum>QFrame::Plain</enum>
      </property>
      <property name="lineWidth">
-      <number>2</number>
+      <number>5</number>
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>

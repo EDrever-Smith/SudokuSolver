@@ -18,7 +18,8 @@ SudokuGui::SudokuGui(QWidget *parent) :
                                   1,3,0, 0,0,0, 2,5,0,
                                   0,0,0, 0,0,0, 0,7,4,
                                   0,0,5, 2,0,6, 3,0,0};
-    board = SudokuBoard(inputSudoku);
+    //board = SudokuBoard(inputSudoku);
+    board = SudokuBoard();
     displaySudokuBoard(board);
 
     connect(ui->solveButton, SIGNAL(released()), this, SLOT(solveCurrentBoard()));
@@ -41,46 +42,63 @@ void SudokuGui::generateLabels()
     QGridLayout *grid7 = ui->gridLayout7;
     QGridLayout *grid8 = ui->gridLayout8;
     QGridLayout *grid9 = ui->gridLayout9;
-    labelsArray = new QLabel*[81];
+    lineEditsArray = new QLineEdit*[81];
     for(int id=0; id<81; id++)
     {
-        labelsArray[id] = new QLabel(this);
-        labelsArray[id]->setText(tr(" "));
-        labelsArray[id]->setStyleSheet("QLabel {"
+        lineEditsArray[id] = new QLineEdit(this);
+        QSizePolicy lineEditSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+        lineEditsArray[id]->setSizePolicy(lineEditSizePolicy);
+        QFont font( "Arial", 18, QFont::Bold);
+        lineEditsArray[id]->setText(tr(""));
+        lineEditsArray[id]->setFont(font);
+        lineEditsArray[id]->setStyleSheet("QLineEdit {"
         "border-style: solid;"
         "border-width: 1px;"
         "border-color: black; "
         "}");
-        labelsArray[id]->setAlignment(Qt::AlignCenter);
-        //layout->addWidget(labelsArray[id], int(id/9), id % 9);
+        lineEditsArray[id]->setAlignment(Qt::AlignCenter);
+        lineEditsArray[id]->setMaxLength(1);
+        //layout->addWidget(lineEditsArray[id], int(id/9), id % 9);
         if(id % 9 < 3 && id/9 <3)
-            grid1->addWidget(labelsArray[id],(id/9)%3, (id%9)%3);
+            grid1->addWidget(lineEditsArray[id],(id/9)%3, (id%9)%3);
         else if (id % 9 < 6 && id/9 < 3)
-            grid2->addWidget(labelsArray[id],(id/9)%3, (id%9)%3);
+            grid2->addWidget(lineEditsArray[id],(id/9)%3, (id%9)%3);
         else if (id % 9 < 9 && id/9 < 3)
-            grid3->addWidget(labelsArray[id],(id/9)%3, (id%9)%3);
+            grid3->addWidget(lineEditsArray[id],(id/9)%3, (id%9)%3);
         else if (id % 9 < 3 && id/9 < 6)
-            grid4->addWidget(labelsArray[id],(id/9)%3, (id%9)%3);
+            grid4->addWidget(lineEditsArray[id],(id/9)%3, (id%9)%3);
         else if (id % 9 < 6 && id/9 < 6)
-            grid5->addWidget(labelsArray[id],(id/9)%3, (id%9)%3);
+            grid5->addWidget(lineEditsArray[id],(id/9)%3, (id%9)%3);
         else if (id % 9 < 9 && id/9 < 6)
-            grid6->addWidget(labelsArray[id],(id/9)%3, (id%9)%3);
+            grid6->addWidget(lineEditsArray[id],(id/9)%3, (id%9)%3);
         else if (id % 9 < 3 && id/9 < 9)
-            grid7->addWidget(labelsArray[id],(id/9)%3, (id%9)%3);
+            grid7->addWidget(lineEditsArray[id],(id/9)%3, (id%9)%3);
         else if (id % 9 < 6 && id/9 < 9)
-            grid8->addWidget(labelsArray[id],(id/9)%3, (id%9)%3);
+            grid8->addWidget(lineEditsArray[id],(id/9)%3, (id%9)%3);
         else if (id % 9 < 9 && id/9 < 9)
-            grid9->addWidget(labelsArray[id],(id/9)%3, (id%9)%3);
+            grid9->addWidget(lineEditsArray[id],(id/9)%3, (id%9)%3);
+        //Possibly want to change this to the textEdited signal - its possible user could change value and forget to press return
+        connect(lineEditsArray[id], SIGNAL(returnPressed()), this, SLOT(updateNumberSquare()));
     }
 }
-
+void SudokuGui::updateNumberSquare()
+{
+    QObject* obj = sender(); //gets a pointer to the object which sent the signal
+    for(int i = 0; i < 81; i++)
+    {
+        if(obj == lineEditsArray[i])
+        {
+            board[i].setVal(lineEditsArray[i]->text().toInt());
+            std::cout<<board<<std::endl;
+        }
+    }
+}
 void SudokuGui::displaySudokuBoard(SudokuBoard &s)
 {
     for(int i = 0; i < 81; i++)
     {
-        //if(s[i].getVal() == 0)
-            //i++;
-        labelsArray[i]->setNum(s[i].getVal());
+        if(!(s[i].getVal() == 0))
+            lineEditsArray[i]->setText(tr("%1").arg(s[i].getVal()));
     }
     return;
 }

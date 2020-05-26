@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QLabel>
 #include <QLine>
+#include <QLineEdit>
+#include <QSizePolicy>
 
 #include "SudokuBoard.h"
 
@@ -21,11 +23,12 @@ public:
     void displaySudokuBoard(SudokuBoard& s);
 public slots:
     void solveCurrentBoard();
+    void updateNumberSquare();
 
 private:
     Ui::SudokuGui *ui;
     void generateLabels();
-    QLabel** labelsArray;
+    QLineEdit** lineEditsArray;
     SudokuBoard board;
 };
 
