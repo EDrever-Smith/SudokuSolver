@@ -2,10 +2,9 @@
 #define SUDOKUGUI_H
 
 #include <QWidget>
-#include <QLabel>
-#include <QLine>
 #include <QLineEdit>
-#include <QSizePolicy>
+#include <QButtonGroup>
+#include <QPushButton>
 
 #include "SudokuBoard.h"
 
@@ -24,12 +23,18 @@ public:
 public slots:
     void solveCurrentBoard();
     void updateNumberSquare();
+    void handleModeSelect(int modeSelected);
 
 private:
     Ui::SudokuGui *ui;
     void generateLabels();
     QLineEdit** lineEditsArray;
     SudokuBoard board;
+    QButtonGroup* modeButtons;
+    QPushButton* manualInputButton;
+    QPushButton* videoInputButton;
+    QPushButton* pictureInputButton;
+    QPushButton* generateGameBoardButton;
 };
 
 #endif // SUDOKUGUI_H
