@@ -1,4 +1,5 @@
 # SudokuSolver - A sudoku puzzle solver using backtracking.
+Dependencies: Qt, OpenCV
 ## Main Aims
 + Design a GUI that enables user to input their own sudoku
 + Use computer vision to allow the program to solve sudokus through a camera in real time.
