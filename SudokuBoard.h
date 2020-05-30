@@ -14,6 +14,7 @@ public:
     NumberSquare& operator[](int p);
     bool isLegal(int id, int num);
     bool SolveSudoku(); //returns false if no solution exists
+    void clearBoard();
 
     friend std::ostream& operator<<(std::ostream& out, const SudokuBoard& s);
 private:

@@ -20,10 +20,14 @@ public:
     explicit SudokuGui(QWidget *parent = nullptr);
     ~SudokuGui();
     void displaySudokuBoard(SudokuBoard& s);
-public slots:
+private slots:
     void solveCurrentBoard();
     void updateNumberSquare();
     void handleModeSelect(int modeSelected);
+    void handleManualInputSelected();
+    void handleVideoInputSelected();
+    void handlePictureInputSelected();
+    void clearUiAndBoard();
 
 private:
     Ui::SudokuGui *ui;
@@ -35,6 +39,8 @@ private:
     QPushButton* videoInputButton;
     QPushButton* pictureInputButton;
     QPushButton* generateGameBoardButton;
+
+    int previousModeFlag = -1;
 };
 
 #endif // SUDOKUGUI_H

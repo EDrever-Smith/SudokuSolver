@@ -135,3 +135,9 @@ std::ostream& operator<<(std::ostream& out, const SudokuBoard& s)
     }
     return out;
 }
+
+void SudokuBoard::clearBoard()
+{
+    for(int i = 0; i < 81; i++)
+        board[i].setVal(0);
+}
