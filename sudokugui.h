@@ -1,10 +1,13 @@
 #ifndef SUDOKUGUI_H
 #define SUDOKUGUI_H
 
+#include <opencv2/opencv.hpp>
+
 #include <QWidget>
 #include <QLineEdit>
 #include <QButtonGroup>
 #include <QPushButton>
+#include <QFileDialog>
 
 #include "SudokuBoard.h"
 

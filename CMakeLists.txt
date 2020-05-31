@@ -13,16 +13,17 @@ set( CMAKE_AUTOUIC ON )
 
 # Find the Qt widgets package. This locates the relevant include and
 # lib directories, and the necessary static libraries for linking.
-find_package( Qt5Widgets )
+find_package( Qt5Widgets REQUIRED )
+
+find_package( OpenCV REQUIRED )
 
 set( UIS mainwindow.ui )
 qt5_wrap_ui( UI_Srcs ${UIS} )
 
 add_executable(SudokuApp main.cpp ${UI_Srcs} ${QRC_Srcs}
-	NumberSquare.h NumberSquare.cpp 
+	NumberSquare.h NumberSquare.cpp
 	SudokuBoard.h SudokuBoard.cpp
 	sudokugui.h sudokugui.cpp sudokugui.ui)
 
 # Tell CMake that the executable depends on the Qt::Widget libraries.
-target_link_libraries( SudokuApp Qt5::Widgets )
-	
+target_link_libraries( SudokuApp Qt5::Widgets ${OpenCV_LIBS})

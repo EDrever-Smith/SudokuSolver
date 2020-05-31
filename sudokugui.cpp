@@ -1,5 +1,8 @@
 #include "sudokugui.h"
 #include "ui_sudokugui.h"
+
+using namespace cv;
+
 SudokuGui::SudokuGui(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::SudokuGui)
@@ -223,6 +226,55 @@ void SudokuGui::handlePictureInputSelected()
     //Makes all line edits read only
     for(int i = 0; i < 81; i++)
         lineEditsArray[i]->setReadOnly(true);
+
+    // set the filter for STL file
+    QString filter = "Images (*.png *.jpg)";
+    // obtain the file name
+    QString filename = QFileDialog::getOpenFileName(this, QString("Open STL file"), "./", filter);
+
+    if (filename.isEmpty()) //if no user exits file dialog rest of function is skipped
+    {
+        pictureInputButton->setFlat(false);
+        return;
+    }
+
+    Mat image = imread(filename.toStdString());
+    // TODO Check for failure
+    if (image.empty())
+    {
+
+    }
+    //CV_8UC1 = 8-bit unsigned int
+    cvtColor(image, image, COLOR_RGB2GRAY);
+    Mat mainOutline = Mat(image.size(),  CV_8UC1);
+    GaussianBlur(image, image, Size(11,11),0);
+    adaptiveThreshold(image, mainOutline, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 5, 2);
+    bitwise_not(mainOutline, mainOutline);
+
+    //Dilate the image to fill up lines -> removing any cracks
+    Mat kernel = (Mat_<uchar>(3,3) << 0,1,0,1,1,1,0,1,0);
+        dilate(mainOutline, mainOutline, kernel);
+
+
+    //iterate through each pixel
+    //floodfill
+    //Keep track of bounding rect with largest area
+
+    for(int y = 0; y < mainOutline.size().height; y++)
+    {
+
+    }
+
+    String windowName = "SudokuImage"; //Name of the window
+
+    namedWindow(windowName); // Create a window
+
+    imshow(windowName, mainOutline); // Show our image inside the created window.
+
+    waitKey(0); // Wait for any keystroke in the window
+
+    destroyWindow(windowName); //destroy the created window
+
 }
 
 void SudokuGui::clearUiAndBoard()
