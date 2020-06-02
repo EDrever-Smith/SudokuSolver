@@ -2,6 +2,7 @@
 #include "ui_sudokugui.h"
 
 using namespace cv;
+using namespace std;
 
 SudokuGui::SudokuGui(QWidget *parent) :
     QWidget(parent),
@@ -259,11 +260,59 @@ void SudokuGui::handlePictureInputSelected()
     //iterate through each pixel
     //floodfill
     //Keep track of bounding rect with largest area
-
+    int max = -1;
+    Point maxPoint;
     for(int y = 0; y < mainOutline.size().height; y++)
     {
-
+        uchar *row = mainOutline.ptr(y);
+        for(int x = 0; x < mainOutline.size().width; x++)
+        {
+            if(row[x] >= 128)
+            {
+                int boundingArea = floodFill(mainOutline, Point(x,y), CV_RGB(0,0,64));
+                if(boundingArea > max)
+                {
+                    max = boundingArea;
+                    maxPoint = Point(x,y);
+                }
+            }
+        }
     }
+
+    //Make the largest area white
+    floodFill(mainOutline, maxPoint, CV_RGB(255,255,255));
+
+    //flood all remaining grey pixels to be black leaving only the outline visible
+    for(int y=0;y<mainOutline.size().height;y++)
+    {
+        uchar *row = mainOutline.ptr(y);
+        for(int x=0;x<mainOutline.size().width;x++)
+        {
+            if(row[x]==64 && x!=maxPoint.x && y!=maxPoint.y)
+            {
+                int area = floodFill(mainOutline, Point(x,y), CV_RGB(0,0,0));
+            }
+        }
+    }
+    erode(mainOutline, mainOutline, kernel);
+
+    //vector that will store lines in normal form (p, theta) as this is the output of the hough transform
+    std::vector<Vec2f> lines;
+
+    //performs the hough transform on the main outline https://docs.opencv.org/3.4/d9/db0/tutorial_hough_lines.html
+    //args 2 and 3 are the resolution params for p and theta. arg 4 is the threshold. I.e minimum number of intersections required to detect line
+    HoughLines(mainOutline, lines, 1, CV_PI/180, 200);
+
+    findAndMergeCloseLines(&lines, mainOutline);
+
+
+
+    for(int i=0;i<lines.size();i++)
+        {
+            drawLine(lines[i], mainOutline, CV_RGB(0,0,128));
+        }
+
+
 
     String windowName = "SudokuImage"; //Name of the window
 
@@ -284,5 +333,115 @@ void SudokuGui::clearUiAndBoard()
     {
         this->board[i].setVal(0);
         lineEditsArray[i]->setText(tr(""));
+    }
+}
+
+//Function to take lines in polar normal form and convert them to cartesian and draw them.
+//y = (−cotθ)x+(p/sinθ)
+//m = -cotθ
+//c = p/sinθ
+void drawLine(Vec2f polarLine, Mat &image, Scalar rgb)
+{
+    if(polarLine[1]!=0) //checks to see if line is vertical (theta = 0) if not, then line must have y-intercept
+    {
+        float m = -1/tan(polarLine[1]);
+        float c = polarLine[0]/sin(polarLine[1]);
+
+        line(image, Point(0, c), Point((image.size().width),(m*image.size().width+c)), rgb);
+    }
+    else //if line is vertical, no y-intercept but can easily draw it at x=r
+    {
+        line(image, Point(polarLine[0], 0), Point(polarLine[0], image.size().height), rgb);
+    }
+
+}
+
+//Function to take a vector of lines and compute which lines are close together and average such lines
+void findAndMergeCloseLines(vector<Vec2f> *lines, Mat &image)
+{
+    for(int currentLine = 0; currentLine < (*lines).size(); currentLine++)
+    {
+        //Check if line has already been merged (will give merged lines these impossible values)
+        //if((*lines)[currentLine][0] == 0 && (*lines)[currentLine][1] == -100) continue;
+
+        float currentRho = (*lines)[currentLine][0];
+        float currentTheta = (*lines)[currentLine][1];
+
+        //using p and theta values for current line, will find two points on the line at extremes of the image that we can later use by taking their average to merge lines
+        Point currentPoint1, currentPoint2;
+        //So to avoid extremely large x or y values for the points, if the line is more horizontal than vertical (45<theta<135) the points will be found at the x extremes (x = 0 and image.width)
+        //and if the line is more vertical the points will be found at the y extremes (y = 0 and image.height)
+        //m = -cotθ
+        //c = p/sinθ
+        //y = mx + c
+        //y = (−cotθ)x+(p/sinθ)
+        //x = (y-c)/m
+        //x = (y-p/sinθ)/-cotθ
+        //  = (y*sinθ - p)/-cosθ
+        //  = -y*tanθ + p/cosθ
+        if(currentTheta > CV_PI*45/180 && currentTheta < CV_PI*135/180)
+        {
+            currentPoint1.x = 0;
+            currentPoint1.y = currentRho / sin(currentTheta);
+
+            currentPoint2.x = image.size().width;
+            currentPoint2.y = -currentPoint2.x/tan(currentTheta) + currentRho / cos(currentTheta);
+        }
+        else
+        {
+            currentPoint1.y = 0;
+            currentPoint1.x = currentRho / cos(currentTheta);
+
+            currentPoint2.y = image.size().height;
+            currentPoint2.x = currentPoint2.y * tan(currentTheta) + currentRho / cos(currentTheta);
+        }
+        //Compare each line to every other line
+        for(int compLine = 0; compLine < (*lines).size(); compLine++)
+        {
+            if(currentLine = compLine) continue;
+
+            float rhoThresh = 20;
+            float thetaThresh = CV_PI*10/180;
+            //Check whether lines are close to eachother (within rho and theta threshold)
+            if(fabs((*lines)[currentLine][0] - (*lines)[compLine][0]) < rhoThresh && fabs((*lines)[currentLine][1] - (*lines)[compLine][1]) < thetaThresh)
+            {
+                float compRho = (*lines)[compLine][0];
+                float compTheta = (*lines)[compLine][1];
+
+                Point compPoint1, compPoint2;
+                //Find two points on the extremes of the line we are comparing
+                if(compTheta > CV_PI*45/180 && compTheta < CV_PI*135/180)
+                {
+                    compPoint1.x = 0;
+                    compPoint1.y = compRho / sin(compTheta);
+
+                    compPoint2.x = image.size().width;
+                    compPoint2.y = -compPoint2.x/tan(compTheta) + compRho / cos(compTheta);
+                }
+                else
+                {
+                    compPoint1.y = 0;
+                    compPoint1.x = compRho / cos(compTheta);
+
+                    compPoint2.y = image.size().height;
+                    compPoint2.x = compPoint2.y * tan(compTheta) + compRho / cos(compTheta);
+                }
+
+                //TODO Verify if this is or isn't overkill since we are already making a check to see if lines are close to eachother earlier
+                float distanceThresh = 64*64;
+                //if both pairs of points are within the distance threshold from eachother then they will be merged
+                if(pow(currentPoint1.x - compPoint1.x,2) + pow(currentPoint1.y - compPoint1.y,2) < distanceThresh &&
+                   pow(currentPoint2.x - compPoint2.x,2) + pow(currentPoint2.y - compPoint2.y,2) < distanceThresh)
+                {
+                    //Average the rho and delta values of the current and comparison lines
+                    (*lines)[currentLine][0] = ((*lines)[currentLine][0] + (*lines)[compLine][0])/2;
+                    (*lines)[currentLine][1] = ((*lines)[currentLine][1] + (*lines)[compLine][1])/2;
+
+                    vector<Vec2f>::iterator it = lines->begin();
+                    advance(it,compLine);
+                    lines->erase(it);
+                }
+            }
+        }
     }
 }

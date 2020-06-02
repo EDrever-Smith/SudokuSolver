@@ -8,9 +8,12 @@
 #include <QButtonGroup>
 #include <QPushButton>
 #include <QFileDialog>
+#include <vector>
 
 #include "SudokuBoard.h"
 
+using namespace cv;
+using namespace std;
 namespace Ui {
 class SudokuGui;
 }
@@ -46,4 +49,8 @@ private:
     int previousModeFlag = -1;
 };
 
+void drawLine(Vec2f line, Mat &img, Scalar rgb = CV_RGB(0,0,255));
+void findAndMergeCloseLines(vector<Vec2f> *lines, Mat &image);
+
 #endif // SUDOKUGUI_H
+
