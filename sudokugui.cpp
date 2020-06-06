@@ -254,8 +254,7 @@ void SudokuGui::handlePictureInputSelected()
 
     //Dilate the image to fill up lines -> removing any cracks
     Mat kernel = (Mat_<uchar>(3,3) << 0,1,0,1,1,1,0,1,0);
-        dilate(mainOutline, mainOutline, kernel);
-
+    dilate(mainOutline, mainOutline, kernel);
 
     //iterate through each pixel
     //floodfill
@@ -283,12 +282,12 @@ void SudokuGui::handlePictureInputSelected()
     floodFill(mainOutline, maxPoint, CV_RGB(255,255,255));
 
     //flood all remaining grey pixels to be black leaving only the outline visible
-    for(int y=0;y<mainOutline.size().height;y++)
+    for(int y = 0; y < mainOutline.size().height; y++)
     {
         uchar *row = mainOutline.ptr(y);
-        for(int x=0;x<mainOutline.size().width;x++)
+        for(int x = 0; x < mainOutline.size().width; x++)
         {
-            if(row[x]==64 && x!=maxPoint.x && y!=maxPoint.y)
+            if(row[x] == 64 && x != maxPoint.x && y != maxPoint.y)
             {
                 int area = floodFill(mainOutline, Point(x,y), CV_RGB(0,0,0));
             }
@@ -297,7 +296,7 @@ void SudokuGui::handlePictureInputSelected()
     erode(mainOutline, mainOutline, kernel);
 
     //vector that will store lines in normal form (p, theta) as this is the output of the hough transform
-    std::vector<Vec2f> lines;
+    vector<Vec2f> lines;
 
     //performs the hough transform on the main outline https://docs.opencv.org/3.4/d9/db0/tutorial_hough_lines.html
     //args 2 and 3 are the resolution params for p and theta. arg 4 is the threshold. I.e minimum number of intersections required to detect line
@@ -305,20 +304,43 @@ void SudokuGui::handlePictureInputSelected()
 
     findAndMergeCloseLines(&lines, mainOutline);
 
+    //Now find the 4 most extreme lines representing the outer 4 edges of the sudoku
+    vector<Vec2f> edges;
+    findEdges(lines, edges);
+
+    Point2f intersectionPoints[4];
+    getEdgeIntersectionPoints(edges, intersectionPoints, mainOutline);
+
+    //For legibility
+    Point ptTopLeft = intersectionPoints[0], ptTopRight = intersectionPoints[1], ptBottomLeft = intersectionPoints[2], ptBottomRight = intersectionPoints[3];
+
+    //Find the longest side length
+    double imageSideLength = norm(ptTopLeft - ptTopRight);
+    double temp = norm(ptTopLeft - ptBottomLeft);
+    if(temp > imageSideLength)
+        imageSideLength = temp;
+    temp = norm(ptTopRight - ptBottomRight);
+    if(temp > imageSideLength)
+        imageSideLength = temp;
+    temp = norm(ptBottomLeft - ptBottomRight);
+    if(temp > imageSideLength)
+        imageSideLength = temp;
 
 
-    for(int i=0;i<lines.size();i++)
-        {
-            drawLine(lines[i], mainOutline, CV_RGB(0,0,128));
-        }
+    Point2f dst[4];
+    dst[0] = Point(0,0);
+    dst[1] = Point(imageSideLength-1, 0);
+    dst[2] = Point(0, imageSideLength-1);
+    dst[3] = Point(imageSideLength-1, imageSideLength-1);
 
-
+    Mat undistorted = Mat(Size(imageSideLength, imageSideLength), CV_8UC1);
+    cv::warpPerspective(image, undistorted, getPerspectiveTransform(intersectionPoints, dst), Size(imageSideLength, imageSideLength));
 
     String windowName = "SudokuImage"; //Name of the window
 
     namedWindow(windowName); // Create a window
 
-    imshow(windowName, mainOutline); // Show our image inside the created window.
+    imshow(windowName, undistorted); // Show our image inside the created window.
 
     waitKey(0); // Wait for any keystroke in the window
 
@@ -393,7 +415,7 @@ void findAndMergeCloseLines(vector<Vec2f> *lines, Mat &image)
             currentPoint1.x = currentRho / cos(currentTheta);
 
             currentPoint2.y = image.size().height;
-            currentPoint2.x = currentPoint2.y * tan(currentTheta) + currentRho / cos(currentTheta);
+            currentPoint2.x = -currentPoint2.y * tan(currentTheta) + currentRho / cos(currentTheta);
         }
         //Compare each line to every other line
         for(int compLine = 0; compLine < (*lines).size(); compLine++)
@@ -416,7 +438,7 @@ void findAndMergeCloseLines(vector<Vec2f> *lines, Mat &image)
                     compPoint1.y = compRho / sin(compTheta);
 
                     compPoint2.x = image.size().width;
-                    compPoint2.y = -compPoint2.x/tan(compTheta) + compRho / cos(compTheta);
+                    compPoint2.y = -compPoint2.x / tan(compTheta) + compRho / cos(compTheta);
                 }
                 else
                 {
@@ -424,7 +446,7 @@ void findAndMergeCloseLines(vector<Vec2f> *lines, Mat &image)
                     compPoint1.x = compRho / cos(compTheta);
 
                     compPoint2.y = image.size().height;
-                    compPoint2.x = compPoint2.y * tan(compTheta) + compRho / cos(compTheta);
+                    compPoint2.x = -compPoint2.y * tan(compTheta) + compRho / cos(compTheta);
                 }
 
                 //TODO Verify if this is or isn't overkill since we are already making a check to see if lines are close to eachother earlier
@@ -444,4 +466,113 @@ void findAndMergeCloseLines(vector<Vec2f> *lines, Mat &image)
             }
         }
     }
+}
+
+//Function to find the 4 most extreme lines in an array of lines
+//Return array index content is as follows: {top,bottom,left,righ}
+void findEdges(const vector<Vec2f> &lines, vector<Vec2f> &edges)
+{
+    Vec2f topEdge = Vec2f(DBL_MAX,0);
+    Vec2f bottomEdge = Vec2f(-DBL_MAX,0);
+    Vec2f leftEdge, rightEdge;
+
+    double leftXIntercept=DBL_MAX, rightXIntercept=0;
+
+    for(int i = 0; i < lines.size(); i++)
+        {
+            Vec2f currentLine  = lines[i];
+            float currentRho = currentLine[0], currentTheta = currentLine[1];
+
+            double xIntercept = currentRho/cos(currentTheta);
+            double yIntercept = currentRho/(cos(currentTheta)*sin(currentTheta));
+
+            if(currentTheta > CV_PI*80/180 && currentTheta < CV_PI*100/180)
+               {
+                   if(currentRho < topEdge[0])
+                       topEdge = currentLine;
+
+                   if(currentRho>bottomEdge[0])
+                       bottomEdge = currentLine;
+               }
+            else if(currentTheta < CV_PI*10/180 || currentTheta > CV_PI*170/180)
+               {
+                   if(xIntercept > rightXIntercept)
+                   {
+                       rightEdge = currentLine;
+                       rightXIntercept = xIntercept;
+                   }
+                   else if(xIntercept<=leftXIntercept)
+                   {
+                       leftEdge = currentLine;
+                       leftXIntercept = xIntercept;
+                   }
+               }
+           }
+    edges.push_back(topEdge);
+    edges.push_back(bottomEdge);
+    edges.push_back(leftEdge);
+    edges.push_back(rightEdge);
+}
+
+//https://stackoverflow.com/questions/7446126/opencv-2d-line-intersection-helper-function/7448287#7448287
+bool findIntersectionPoint(Point2f o1, Point2f p1, Point2f o2, Point2f p2, Point2f &intersectionPoint)
+{
+    Point2f x = o2 - o1;
+    Point2f d1 = p1 - o1;
+    Point2f d2 = p2 - o2;
+
+    float cross = d1.x*d2.y - d1.y*d2.x;
+    if (abs(cross) < /*EPS*/1e-8)
+        return false;
+
+    double t1 = (x.x * d2.y - x.y * d2.x)/cross;
+    intersectionPoint = o1 + d1 * t1;
+    return true;
+}
+
+//Funtion to get the 4 intersection points of the passed edges
+void getEdgeIntersectionPoints(vector<Vec2f> &edges, Point2f intersectionPoints[4], Mat &image)
+{
+    //for legibility
+    Vec2f topEdge = edges[0], bottomEdge = edges[1], leftEdge = edges[2], rightEdge = edges[3];
+
+    /* Debugging
+    drawLine(topEdge, image, CV_RGB(0,0,0));
+    drawLine(bottomEdge, image, CV_RGB(0,0,0));
+    drawLine(leftEdge, image, CV_RGB(0,0,0));
+    drawLine(rightEdge, image, CV_RGB(0,0,0));
+    */
+
+    //for legibility
+    int height = image.size().height;
+    int width = image.size().width;
+
+    //Now find two points on each line with which to compute the lines intersection points
+    Point2f top1, top2, bottom1, bottom2, left1, left2, right1, right2;
+
+    left1.y = 0;
+    left1.x = leftEdge[0] / cos(leftEdge[1]);
+    left2.y = height;
+    left2.x = left1.x - height * tan(leftEdge[1]);
+
+    right1.y=0;
+    right1.x = rightEdge[0] / cos(rightEdge[1]);
+    right2.y=height;
+    right2.x = right1.x - height * tan(rightEdge[1]);
+
+    bottom1.x = 0;
+    bottom1.y = bottomEdge[0] / sin(bottomEdge[1]);
+    bottom2.x = width;
+    bottom2.y = -bottom2.x / tan(bottomEdge[1]) + bottom1.y;
+
+    top1.x = 0;
+    top1.y = topEdge[0] / sin(topEdge[1]);
+    top2.x = width;
+    top2.y = -top2.x / tan(topEdge[1]) + top1.y;
+
+    //TODO catch failure of function
+    findIntersectionPoint(top1,top2,left1,left2,intersectionPoints[0]);
+    findIntersectionPoint(top1,top2,right1,right2,intersectionPoints[1]);
+    findIntersectionPoint(bottom1,bottom2,left1,left2,intersectionPoints[2]);
+    findIntersectionPoint(bottom1,bottom2,right1,right2,intersectionPoints[3]);
 }
