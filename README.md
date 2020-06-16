@@ -7,3 +7,9 @@ Dependencies: Qt, OpenCV
 + Generate 'random' solvable sudokus or the user to solve []
 + Gameify the program (Timer, Leaderboard etc.) []
 + Visualise the process of how the sudoku is solved []
+### To-Do List
++ Preprocess each number square by deskewing and centering them ready to be classified
++ Compare the effectiveness of kNN and SVM approaches to training the digit classifier
++ Train chosen algorithm using MNIST dataset (big endian so must write a function to read flipped ints on my little endian machine)
++ Classify 81x1 array of image squares and input data to SudokuBoard class
++ Determine a method of identifying whether video frame contains a sudoku that is processor efficient
