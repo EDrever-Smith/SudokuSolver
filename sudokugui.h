@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "SudokuBoard.h"
+#include "KnnNumberRecogniser.h"
 
 using namespace cv;
 using namespace std;
@@ -56,4 +57,3 @@ bool findIntersectionPoint(Point2f o1, Point2f p1, Point2f o2, Point2f p2, Point
 void getEdgeIntersectionPoints(vector<Vec2f> &edges, Point2f intersectionPoints[4], Mat &image);
 
 #endif // SUDOKUGUI_H
-

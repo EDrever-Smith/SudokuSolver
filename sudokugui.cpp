@@ -239,22 +239,30 @@ void SudokuGui::handlePictureInputSelected()
         return;
     }
 
-    Mat image = imread(filename.toStdString());
+    Mat originalImage = imread(filename.toStdString());
     // TODO Check for failure
-    if (image.empty())
+    if (originalImage.empty())
     {
 
     }
-    //CV_8UC1 = 8-bit unsigned int
-    cvtColor(image, image, COLOR_RGB2GRAY);
-    Mat mainOutline = Mat(image.size(),  CV_8UC1);
-    GaussianBlur(image, image, Size(11,11),0);
-    adaptiveThreshold(image, mainOutline, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY, 5, 2);
-    bitwise_not(mainOutline, mainOutline);
+
+    cvtColor(originalImage, originalImage, COLOR_RGB2GRAY);
+    imshow("Grey Image", originalImage);
+
+
+
+    Mat blurredImage = originalImage.clone();
+    GaussianBlur(originalImage, blurredImage, Size(11,11),0);
+    imshow("Blurred Grey Image", blurredImage);
+
+    Mat mainOutline = Mat(originalImage.size(),  CV_8UC1);  //CV_8UC1 = 8-bit unsigned int
+    adaptiveThreshold(blurredImage, mainOutline, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY_INV, 5, 2);
+    imshow("Adaptive Thresholded", mainOutline);
 
     //Dilate the image to fill up lines -> removing any cracks
     Mat kernel = (Mat_<uchar>(3,3) << 0,1,0,1,1,1,0,1,0);
     dilate(mainOutline, mainOutline, kernel);
+    imshow("Dilated", mainOutline);
 
     //iterate through each pixel
     //floodfill
@@ -294,6 +302,7 @@ void SudokuGui::handlePictureInputSelected()
         }
     }
     erode(mainOutline, mainOutline, kernel);
+    imshow("Dilated", mainOutline);
 
     //vector that will store lines in normal form (p, theta) as this is the output of the hough transform
     vector<Vec2f> lines;
@@ -333,14 +342,50 @@ void SudokuGui::handlePictureInputSelected()
     dst[2] = Point(0, imageSideLength-1);
     dst[3] = Point(imageSideLength-1, imageSideLength-1);
 
-    Mat undistorted = Mat(Size(imageSideLength, imageSideLength), CV_8UC1);
-    cv::warpPerspective(image, undistorted, getPerspectiveTransform(intersectionPoints, dst), Size(imageSideLength, imageSideLength));
+    Mat transformedImage = Mat(Size(imageSideLength, imageSideLength), CV_8UC1);
+    warpPerspective(originalImage, transformedImage, getPerspectiveTransform(intersectionPoints, dst), Size(imageSideLength, imageSideLength));
+
+    //Next Steps..
+    //Adaptive threshold image
+    //Split image into its component 81 boxes - store in vector array
+    //Parse each box and determine its component number
+
+    Mat thresholdedTransformedImage = transformedImage.clone();
+
+    //We use adaptive thresholding since the lighting can vary throughout the image.
+    //This algorithm chooses the threshold for each pixel  depending on a small region surrounding said pixel
+    //https://docs.opencv.org/3.4/d7/d4d/tutorial_py_thresholding.html
+    adaptiveThreshold(transformedImage, thresholdedTransformedImage, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY_INV, 101, 1);
+    vector<Rect> numberSquareImages;
+    double numberSquareSideLength = ceil(imageSideLength / 9);
+
+    for(int y = 0; y <= imageSideLength - numberSquareSideLength ; y+= numberSquareSideLength) //Could have some funky double rounding errors here, be cautious
+    {
+      for(int x = 0; x <= imageSideLength - numberSquareSideLength; x+= numberSquareSideLength)
+      {
+        int k = x*y + x;
+        Rect numberRect(x, y, numberSquareSideLength, numberSquareSideLength);
+        numberSquareImages.push_back(numberRect);
+        //rectangle(transformedImage, numberRect, Scalar(0, 255, 0), 1);
+        //imshow("transformedImage", transformedImage);
+        //imshow(format("grid%d",k), transformedImage(numberRect));
+        //waitKey();
+      }
+    }
+
+    //Next steps
+    //Preprocess number images by deskewing and centering them
+    //Compare the effectiveness of K-nearest neighbor (kNN) and support vector machines(SVM)
+    //train algorithm using MNIST data set (big endian)
+
+    //KnnNumberRecogniser digitRecogniser;
+    //digitRecogniser.train("../train-images.idx3-ubyte","../train-labels.idx1-ubyte");
 
     String windowName = "SudokuImage"; //Name of the window
 
     namedWindow(windowName); // Create a window
 
-    imshow(windowName, undistorted); // Show our image inside the created window.
+    imshow(windowName, thresholdedTransformedImage); // Show our image inside the created window.
 
     waitKey(0); // Wait for any keystroke in the window
 
