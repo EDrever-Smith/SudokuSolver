@@ -378,8 +378,8 @@ void SudokuGui::handlePictureInputSelected()
     //Compare the effectiveness of K-nearest neighbor (kNN) and support vector machines(SVM)
     //train algorithm using MNIST data set (big endian)
 
-    //KnnNumberRecogniser digitRecogniser;
-    //digitRecogniser.train("../train-images.idx3-ubyte","../train-labels.idx1-ubyte");
+    KnnNumberRecogniser digitRecogniser;
+    digitRecogniser.train("train-images.idx3-ubyte","train-labels.idx1-ubyte");
 
     String windowName = "SudokuImage"; //Name of the window
 

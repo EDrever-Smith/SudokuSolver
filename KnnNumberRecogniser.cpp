@@ -13,7 +13,8 @@ KnnNumberRecogniser::~KnnNumberRecogniser()
 int32_t KnnNumberRecogniser::readFlippedInteger(FILE *fileStream)
 {
   int32_t returnInt = 0;
-  uint8_t* pReturnBytes = reinterpret_cast<uint8_t*>(returnInt);
+  uint8_t* pReturnBytes;
+  pReturnBytes = (uint8_t*)(&returnInt);
   fread(&pReturnBytes[3], sizeof(uint8_t), 1, fileStream);
   fread(&pReturnBytes[2], sizeof(uint8_t), 1, fileStream);
   fread(&pReturnBytes[1], sizeof(uint8_t), 1, fileStream);
@@ -42,30 +43,26 @@ bool KnnNumberRecogniser::train(char* trainImagesPath, char* trainLabelsPath)
   //already tested magic number and know number of items so can skip first two ints
   fseek(trainLabelsStream, 8, SEEK_SET);
   int size = numRows * numCols;
+
+  //Matricies to hold training data (row-wise)
   Mat trainingImages(numImages, size, CV_32FC1);
   Mat trainingLabels(numImages, 1, CV_32FC1);
 
+  uint8_t tempLabel = 0;
+  uint8_t* tempPixels = new uint8_t[size];
 
-  //for each image, get all {size} pixels and load them into 2D uint8_t array
-  uint8_t tempLabel;
-  uint8_t** tempPixels = new uint8_t*[numRows];
-  for(int i = 0; i < numRows; i++)
-    tempPixels[i] = new uint8_t[numCols];
-
+  //For each image, read off all those pixels into a row of the data matricies
   for(int i = 0; i < numImages; i++)
   {
-    for(int j = 0; j < numRows; j++)
-    {
-      for(int k = 0; k < numCols; k++)
-        fread(&tempPixels[j][k], sizeof(uint8_t), 1, trainImagesStream);
-    }
-    Mat tempMat(numRows,numCols, CV_8UC1, &tempPixels);
-    trainingImages.push_back(tempMat);
+    fread(&tempPixels, sizeof(uint8_t), 1, trainImagesStream);
+    Mat tempMat(1,size, CV_32FC1, &tempPixels);
+    tempMat.row(0).copyTo(trainingImages.row(i)); //Had to do this because push_back is finicky as hell
 
     fread(&tempLabel,sizeof(uint8_t), 1, trainLabelsStream);
-    trainingLabels.push_back(tempLabel);
+    Mat tempLabelMat(1, 1, CV_32FC1, &tempLabel);
+    tempLabelMat.row(0).copyTo(trainingLabels.row(i));
   }
-  knn->train(trainingImages, ml::ROW_SAMPLE, trainingLabels); //not sure if ROW_SAMPLE or COL_SAMPLE
+  knn->train(trainingImages, ml::ROW_SAMPLE, trainingLabels);
 }
 
 Mat KnnNumberRecogniser::preprocessImage(Mat image)

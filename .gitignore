@@ -7,3 +7,5 @@
 build/
 bin/
 obj/
+.vs/
+*.py

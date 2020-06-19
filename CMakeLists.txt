@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.12.0)
 
 project(SudokuSolver)
 
+set(CMAKE_PREFIX_PATH D:\\Qt\\5.12.0\\msvc2017_64;D:\\opencv\\build)
 # The CMake build process might generate some new files in the current
 # directory. This makes sure they can be found.
 set( CMAKE_INCLUDE_CURRENT_DIR ON )
@@ -24,7 +25,7 @@ add_executable(SudokuApp main.cpp ${UI_Srcs} ${QRC_Srcs}
 	NumberSquare.h NumberSquare.cpp
 	SudokuBoard.h SudokuBoard.cpp
 	sudokugui.h sudokugui.cpp sudokugui.ui
-	KnnNumberRecogniser.h KnnNumberRecogniser.cpp) 
+	KnnNumberRecogniser.h KnnNumberRecogniser.cpp)
 
 # Tell CMake that the executable depends on the Qt::Widget libraries.
 target_link_libraries( SudokuApp Qt5::Widgets ${OpenCV_LIBS})
