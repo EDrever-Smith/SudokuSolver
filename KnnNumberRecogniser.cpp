@@ -45,8 +45,8 @@ bool KnnNumberRecogniser::train(char* trainImagesPath, char* trainLabelsPath)
   int size = numRows * numCols;
 
   //Matricies to hold training data (row-wise)
-  Mat trainingImages(numImages, size, CV_32FC1);
-  Mat trainingLabels(numImages, 1, CV_32FC1);
+  Mat trainingImages(numImages, size, CV_8UC1);
+  Mat trainingLabels(numImages, 1, CV_8UC1);
 
   uint8_t tempLabel = 0;
   uint8_t* tempPixels = new uint8_t[size];
@@ -55,22 +55,33 @@ bool KnnNumberRecogniser::train(char* trainImagesPath, char* trainLabelsPath)
   for(int i = 0; i < numImages; i++)
   {
     fread(&tempPixels, sizeof(uint8_t), 1, trainImagesStream);
-    Mat tempMat(1,size, CV_32FC1, &tempPixels);
+    Mat tempMat(1,size, CV_8UC1, &tempPixels);
     tempMat.row(0).copyTo(trainingImages.row(i)); //Had to do this because push_back is finicky as hell
 
     fread(&tempLabel,sizeof(uint8_t), 1, trainLabelsStream);
-    Mat tempLabelMat(1, 1, CV_32FC1, &tempLabel);
+    Mat tempLabelMat(1, 1, CV_8UC1, &tempLabel);
     tempLabelMat.row(0).copyTo(trainingLabels.row(i));
   }
+  trainingImages.convertTo(trainingImages, CV_32FC1);
+  trainingLabels.convertTo(trainingLabels, CV_32FC1);
   knn->train(trainingImages, ml::ROW_SAMPLE, trainingLabels);
+
+  fclose(trainImagesStream);
+  fclose(trainLabelsStream);
+
+  return true;
 }
 
-Mat KnnNumberRecogniser::preprocessImage(Mat image)
+Mat KnnNumberRecogniser::preprocessImages(Mat image)
 {
   return image;
 }
 
-int KnnNumberRecogniser::identifyNumber(Mat image)
+vector<int> KnnNumberRecogniser::identifyNumbers(Mat images)
 {
-  return 0;
+  vector<int> results;
+  Mat resultMat;
+  images.convertTo(images, CV_32FC1);
+  knn->findNearest(images,1, resultMat);
+  return results;
 }

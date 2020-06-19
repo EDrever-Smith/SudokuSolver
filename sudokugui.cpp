@@ -356,20 +356,25 @@ void SudokuGui::handlePictureInputSelected()
     //This algorithm chooses the threshold for each pixel  depending on a small region surrounding said pixel
     //https://docs.opencv.org/3.4/d7/d4d/tutorial_py_thresholding.html
     adaptiveThreshold(transformedImage, thresholdedTransformedImage, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY_INV, 101, 1);
-    vector<Rect> numberSquareImages;
-    double numberSquareSideLength = ceil(imageSideLength / 9);
+    vector<Rect> numberSquareRects;
+    Mat numberSquares(81,28*28,CV_8UC1); //store images row-wise by pixel data
+    int numberSquareSideLength = ceil(imageSideLength / 9);
+    cout << imageSideLength << endl;
 
-    for(int y = 0; y <= imageSideLength - numberSquareSideLength ; y+= numberSquareSideLength) //Could have some funky double rounding errors here, be cautious
+    for(int y = 0; y < 9 ; y++)
     {
-      for(int x = 0; x <= imageSideLength - numberSquareSideLength; x+= numberSquareSideLength)
+      for(int x = 0; x < 9; x++)
       {
-        int k = x*y + x;
-        Rect numberRect(x, y, numberSquareSideLength, numberSquareSideLength);
-        numberSquareImages.push_back(numberRect);
-        //rectangle(transformedImage, numberRect, Scalar(0, 255, 0), 1);
-        //imshow("transformedImage", transformedImage);
-        //imshow(format("grid%d",k), transformedImage(numberRect));
-        //waitKey();
+        Mat tempMat(28*28,1,CV_8UC1);
+        for(int j = 0; j < 28; j++)
+        {
+          for(int i = 0; i < 28; i++)
+          {
+            tempMat.at<uchar>(i+j*28) = thresholdedTransformedImage.at<uchar>(j+y*numberSquareSideLength, i+x*numberSquareSideLength);
+          }
+        }
+        tempMat = tempMat.t();
+        tempMat.row(0).copyTo(numberSquares.row(y*x + x));
       }
     }
 
@@ -380,6 +385,8 @@ void SudokuGui::handlePictureInputSelected()
 
     KnnNumberRecogniser digitRecogniser;
     digitRecogniser.train("train-images.idx3-ubyte","train-labels.idx1-ubyte");
+    vector<int> results = digitRecogniser.identifyNumbers(numberSquares);
+    cout<<results[0]<<endl;
 
     String windowName = "SudokuImage"; //Name of the window
 
@@ -404,7 +411,7 @@ void SudokuGui::clearUiAndBoard()
 }
 
 //Function to take lines in polar normal form and convert them to cartesian and draw them.
-//y = (−cotθ)x+(p/sinθ)
+//y = (−cotθ)x+(p/sinθ).
 //m = -cotθ
 //c = p/sinθ
 void drawLine(Vec2f polarLine, Mat &image, Scalar rgb)

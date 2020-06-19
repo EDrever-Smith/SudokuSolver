@@ -16,9 +16,9 @@ public:
   ~KnnNumberRecogniser();
 
   bool train(char* trainDataPath, char* labelsPath);
-  int identifyNumber(Mat image);
+  vector<int> identifyNumbers(Mat image);
 private:
-  Mat preprocessImage(Mat image);
+  Mat preprocessImages(Mat image);
   int32_t readFlippedInteger(FILE *filePath);
   Ptr<ml::KNearest> knn;
   int32_t numRows, numCols, numImages;
