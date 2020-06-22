@@ -379,12 +379,15 @@ void SudokuGui::handlePictureInputSelected()
     }
 
     //Next steps
-    //Preprocess number images by deskewing and centering them
+    //Preprocess number images by deskewing and centering them!!!
+    //Change clasify function to work one image at a time perhaps
     //Compare the effectiveness of K-nearest neighbor (kNN) and support vector machines(SVM)
     //train algorithm using MNIST data set (big endian)
+    //Neaten up code into functions and objects
 
     KnnNumberRecogniser digitRecogniser;
     digitRecogniser.train("train-images.idx3-ubyte","train-labels.idx1-ubyte");
+    cout << "Test Result: " << digitRecogniser.test("t10k-images.idx3-ubyte","t10k-labels.idx1-ubyte") << endl;
     vector<int> results = digitRecogniser.identifyNumbers(numberSquares);
     cout<<results[0]<<endl;
 

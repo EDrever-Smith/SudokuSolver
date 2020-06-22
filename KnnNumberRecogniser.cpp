@@ -23,53 +23,87 @@ int32_t KnnNumberRecogniser::readFlippedInteger(FILE *fileStream)
   return returnInt;
 }
 
-bool KnnNumberRecogniser::train(char* trainImagesPath, char* trainLabelsPath)
+bool KnnNumberRecogniser::readMNIST(char* imagesFilePath, char* labelsFilePath, Mat& imageData, Mat& labelData)
 {
-  FILE *trainImagesStream = fopen(trainImagesPath, "rb");
-  FILE *trainLabelsStream = fopen(trainLabelsPath, "rb");
+  FILE* imagesFileStream = fopen(imagesFilePath, "rb");
+  FILE* labelsFileStream = fopen(labelsFilePath, "rb");
 
   //check if files opened successfully
-  if(!trainImagesStream || !trainLabelsStream)
+  if(!imagesFileStream || !labelsFileStream)
     return false;
 
   //first 4 items in training set image file are 32 bit ints: magic number, number of images, number of rows, number of colums
-  if(readFlippedInteger(trainImagesStream) != 2051) //If magic number isnt 2051 we are reading data incorrectly
-    return false;
+  cout << "ImageFile MagicNumber: " << readFlippedInteger(imagesFileStream) << endl; //2051 for traindata
+  cout << "LabelFile MagicNumber: " << readFlippedInteger(labelsFileStream) << endl; //2049 for trainlabels
 
-  numImages = readFlippedInteger(trainImagesStream);
-  numRows = readFlippedInteger(trainImagesStream);
-  numCols = readFlippedInteger(trainImagesStream);
+  int32_t numImages = readFlippedInteger(imagesFileStream);
+  int32_t numRows = readFlippedInteger(imagesFileStream);
+  int32_t numCols = readFlippedInteger(imagesFileStream);
+  int32_t size = numRows * numCols;
+
+  imageData = Mat(numImages, size, CV_8UC1);
+  labelData = Mat(numImages, 1, CV_8UC1);
 
   //already tested magic number and know number of items so can skip first two ints
-  fseek(trainLabelsStream, 8, SEEK_SET);
-  int size = numRows * numCols;
-
-  //Matricies to hold training data (row-wise)
-  Mat trainingImages(numImages, size, CV_8UC1);
-  Mat trainingLabels(numImages, 1, CV_8UC1);
-
-  uint8_t tempLabel = 0;
-  uint8_t* tempPixels = new uint8_t[size];
+  fseek(labelsFileStream, 8, SEEK_SET);
 
   //For each image, read off all those pixels into a row of the data matricies
   for(int i = 0; i < numImages; i++)
   {
-    fread(&tempPixels, sizeof(uint8_t), 1, trainImagesStream);
+    uint8_t tempLabel = 0;
+    uint8_t* tempPixels = new uint8_t[size];
+
+    fread(&tempPixels, sizeof(uint8_t), 1, imagesFileStream);
     Mat tempMat(1,size, CV_8UC1, &tempPixels);
-    tempMat.row(0).copyTo(trainingImages.row(i)); //Had to do this because push_back is finicky as hell
+    tempMat.row(0).copyTo(imageData.row(i)); //Had to do this because push_back is finicky as hell
+    //delete array
 
-    fread(&tempLabel,sizeof(uint8_t), 1, trainLabelsStream);
-    Mat tempLabelMat(1, 1, CV_8UC1, &tempLabel);
-    tempLabelMat.row(0).copyTo(trainingLabels.row(i));
+    fread(&tempLabel,sizeof(uint8_t), 1, labelsFileStream);
+    //cout << tempLabel << endl;
+    labelData.at<uchar>(i, 0) = tempLabel;
   }
-  trainingImages.convertTo(trainingImages, CV_32FC1);
-  trainingLabels.convertTo(trainingLabels, CV_32FC1);
-  knn->train(trainingImages, ml::ROW_SAMPLE, trainingLabels);
-
-  fclose(trainImagesStream);
-  fclose(trainLabelsStream);
+  fclose(imagesFileStream);
+  fclose(labelsFileStream);
 
   return true;
+}
+bool KnnNumberRecogniser::train(char* trainImagesPath, char* trainLabelsPath)
+{
+  //Matricies to hold training data (row-wise)
+  Mat trainingImages;
+  Mat trainingLabels;
+
+  if(!readMNIST(trainImagesPath, trainLabelsPath, trainingImages, trainingLabels))
+    return false;
+
+  trainingImages.convertTo(trainingImages, CV_32FC1); //Change from 8bit unsigned char to 32bit float ready for train function
+  trainingLabels.convertTo(trainingLabels, CV_32FC1);
+  knn->setDefaultK(10);
+  knn->train(trainingImages, ml::ROW_SAMPLE, trainingLabels);
+
+  return true;
+}
+float KnnNumberRecogniser::test(char* testDataPath, char* testLabelsPath)
+{
+  Mat testImages;
+  Mat testLabels;
+
+  readMNIST(testDataPath, testLabelsPath, testImages, testLabels);
+
+  int correctCount = 0;
+
+  testImages.convertTo(testImages, CV_32FC1);
+  testLabels.convertTo(testLabels, CV_32FC1);
+
+  for(int i = 0; i < testImages.rows; i++)
+  {
+    Mat results(1,testImages.cols,CV_32FC1);
+    float response = knn->findNearest(testImages.row(i), knn->getDefaultK(), results);
+    //cout << response << endl;
+    if(testLabels.at<float>(i,0) == response)
+      correctCount++;
+  }
+  return correctCount / testImages.rows;
 }
 
 Mat KnnNumberRecogniser::preprocessImages(Mat image)
@@ -80,8 +114,10 @@ Mat KnnNumberRecogniser::preprocessImages(Mat image)
 vector<int> KnnNumberRecogniser::identifyNumbers(Mat images)
 {
   vector<int> results;
+  results.resize(81);
   Mat resultMat;
   images.convertTo(images, CV_32FC1);
-  knn->findNearest(images,1, resultMat);
+  knn->findNearest(images, knn->getDefaultK(), resultMat);
+  //cout << resultMat << endl;
   return results;
 }

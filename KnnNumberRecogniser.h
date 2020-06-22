@@ -16,12 +16,13 @@ public:
   ~KnnNumberRecogniser();
 
   bool train(char* trainDataPath, char* labelsPath);
+  float test(char* testDataPath, char* testLabelsPath);
   vector<int> identifyNumbers(Mat image);
 private:
   Mat preprocessImages(Mat image);
+  bool readMNIST(char* imagesFileStream, char* labelsFileStream, Mat& imageData, Mat& labelData);
   int32_t readFlippedInteger(FILE *filePath);
   Ptr<ml::KNearest> knn;
-  int32_t numRows, numCols, numImages;
 };
 
 #endif //KNN_NUMBER_RECOGNISER_H_INCLUDED
