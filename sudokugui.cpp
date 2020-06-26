@@ -253,16 +253,16 @@ void SudokuGui::handlePictureInputSelected()
 
     Mat blurredImage = originalImage.clone();
     GaussianBlur(originalImage, blurredImage, Size(11,11),0);
-    imshow("Blurred Grey Image", blurredImage);
+    //imshow("Blurred Grey Image", blurredImage);
 
-    Mat mainOutline = Mat(originalImage.size(),  CV_8UC1);  //CV_8UC1 = 8-bit unsigned int
+    Mat mainOutline = Mat(originalImage.size(),  CV_8U);  //CV_8UC1 = 8-bit unsigned int
     adaptiveThreshold(blurredImage, mainOutline, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY_INV, 5, 2);
-    imshow("Adaptive Thresholded", mainOutline);
+    //imshow("Adaptive Thresholded", mainOutline);
 
     //Dilate the image to fill up lines -> removing any cracks
     Mat kernel = (Mat_<uchar>(3,3) << 0,1,0,1,1,1,0,1,0);
     dilate(mainOutline, mainOutline, kernel);
-    imshow("Dilated", mainOutline);
+    //imshow("Dilated", mainOutline);
 
     //iterate through each pixel
     //floodfill
@@ -302,7 +302,7 @@ void SudokuGui::handlePictureInputSelected()
         }
     }
     erode(mainOutline, mainOutline, kernel);
-    imshow("Dilated", mainOutline);
+    //imshow("Dilated", mainOutline);
 
     //vector that will store lines in normal form (p, theta) as this is the output of the hough transform
     vector<Vec2f> lines;
@@ -342,7 +342,7 @@ void SudokuGui::handlePictureInputSelected()
     dst[2] = Point(0, imageSideLength-1);
     dst[3] = Point(imageSideLength-1, imageSideLength-1);
 
-    Mat transformedImage = Mat(Size(imageSideLength, imageSideLength), CV_8UC1);
+    Mat transformedImage = Mat(Size(imageSideLength, imageSideLength), CV_8U);
     warpPerspective(originalImage, transformedImage, getPerspectiveTransform(intersectionPoints, dst), Size(imageSideLength, imageSideLength));
 
     //Next Steps..
@@ -357,27 +357,43 @@ void SudokuGui::handlePictureInputSelected()
     //https://docs.opencv.org/3.4/d7/d4d/tutorial_py_thresholding.html
     adaptiveThreshold(transformedImage, thresholdedTransformedImage, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY_INV, 101, 1);
     vector<Rect> numberSquareRects;
-    Mat numberSquares(81,28*28,CV_8UC1); //store images row-wise by pixel data
+    Mat numberSquares(81,28*28,CV_8U); //store images row-wise by pixel data
     int numberSquareSideLength = ceil(imageSideLength / 9);
     //cout << imageSideLength << endl;
-
+    cv::resize(thresholdedTransformedImage, thresholdedTransformedImage, Size(252, 252), 0, 0, INTER_LINEAR);
+    imshow("resized", thresholdedTransformedImage);
     for(int y = 0; y < 9 ; y++)
     {
       for(int x = 0; x < 9; x++)
       {
-        Mat tempMat(28*28,1,CV_8UC1);
+        Mat tempMat(28*28,1,CV_8U);
         for(int j = 0; j < 28; j++)
         {
           for(int i = 0; i < 28; i++)
           {
-            tempMat.at<uchar>(i+j*28) = thresholdedTransformedImage.at<uchar>(j+y*numberSquareSideLength, i+x*numberSquareSideLength);
+            tempMat.at<uchar>(i+j*28) = thresholdedTransformedImage.at<uchar>(j+y*28, i+x*28);
           }
         }
         tempMat = tempMat.t();
-        tempMat.row(0).copyTo(numberSquares.row(y*x + x));
+        tempMat.row(0).copyTo(numberSquares.row(x + y * 9));
       }
     }
-
+    /*Mat imageToVisualise(28, 28, CV_8U);
+    for (int y = 0; y < 9; y++)
+    {
+        for (int x = 0; x < 9; x++)
+        {
+            for (int i = 0; i < 28; i++)
+            {
+                for (int j = 0; j < 28; j++)
+                {
+                    imageToVisualise.at<uchar>(i, j) = numberSquares.at<uchar>(x + y*9 ,j + i * 28);
+                }
+            }
+            imshow(format("%d", x + y * 9), imageToVisualise);
+        }
+    }*/
+    
     //Next steps
     //Preprocess number images by deskewing and centering them!!!
     //Change clasify function to work one image at a time perhaps
@@ -388,9 +404,8 @@ void SudokuGui::handlePictureInputSelected()
     KnnNumberRecogniser digitRecogniser;
     //digitRecogniser.trainAndTest();
     digitRecogniser.train("train-images.idx3-ubyte","train-labels.idx1-ubyte");
-    cout << "Test Result: " << digitRecogniser.test("t10k-images.idx3-ubyte","t10k-labels.idx1-ubyte") << endl;
-    //vector<int> results = digitRecogniser.identifyNumbers(numberSquares);
-    //cout<<results[0]<<endl;
+    //cout << "Test Result: " << digitRecogniser.test("t10k-images.idx3-ubyte","t10k-labels.idx1-ubyte") << endl;
+    vector<int> results = digitRecogniser.identifyNumbers(numberSquares);
 
     String windowName = "SudokuImage"; //Name of the window
 

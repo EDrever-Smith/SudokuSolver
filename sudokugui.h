@@ -2,6 +2,7 @@
 #define SUDOKUGUI_H
 
 #include <opencv2/opencv.hpp>
+#include <opencv2/imgproc.hpp>
 
 #include <QWidget>
 #include <QLineEdit>

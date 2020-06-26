@@ -115,8 +115,10 @@ vector<int> KnnNumberRecogniser::identifyNumbers(Mat images)
     Mat resultMat;
     images.convertTo(images, CV_32FC1);
 
-    for(int i = 0; i < images.rows; i++)
-        results[i] = (int) knn->findNearest(images, knn->getDefaultK(), resultMat);
-
+    for (int i = 0; i < images.rows; i++)
+    {
+        results[i] = (int)knn->findNearest(images, knn->getDefaultK(), resultMat);
+        cout << "Image " << i << ": " << results[i] << endl;
+    }
     return results;
 }
