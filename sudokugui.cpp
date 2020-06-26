@@ -359,7 +359,7 @@ void SudokuGui::handlePictureInputSelected()
     vector<Rect> numberSquareRects;
     Mat numberSquares(81,28*28,CV_8UC1); //store images row-wise by pixel data
     int numberSquareSideLength = ceil(imageSideLength / 9);
-    cout << imageSideLength << endl;
+    //cout << imageSideLength << endl;
 
     for(int y = 0; y < 9 ; y++)
     {
@@ -386,10 +386,11 @@ void SudokuGui::handlePictureInputSelected()
     //Neaten up code into functions and objects
 
     KnnNumberRecogniser digitRecogniser;
+    //digitRecogniser.trainAndTest();
     digitRecogniser.train("train-images.idx3-ubyte","train-labels.idx1-ubyte");
     cout << "Test Result: " << digitRecogniser.test("t10k-images.idx3-ubyte","t10k-labels.idx1-ubyte") << endl;
-    vector<int> results = digitRecogniser.identifyNumbers(numberSquares);
-    cout<<results[0]<<endl;
+    //vector<int> results = digitRecogniser.identifyNumbers(numberSquares);
+    //cout<<results[0]<<endl;
 
     String windowName = "SudokuImage"; //Name of the window
 

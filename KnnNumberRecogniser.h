@@ -5,6 +5,7 @@
 #include <opencv2/ml.hpp>
 #include <iostream>
 #include <stddef.h>
+#include <fstream>
 
 using namespace cv;
 using namespace std;
@@ -15,13 +16,13 @@ public:
   KnnNumberRecogniser();
   ~KnnNumberRecogniser();
 
-  bool train(char* trainDataPath, char* labelsPath);
-  float test(char* testDataPath, char* testLabelsPath);
+  bool train(const string imagesFilePath, const string labelsFilePath);
+  float test(const string imagesFilePath, const string labelsFilePath);
   vector<int> identifyNumbers(Mat image);
 private:
   Mat preprocessImages(Mat image);
-  bool readMNIST(char* imagesFileStream, char* labelsFileStream, Mat& imageData, Mat& labelData);
-  int32_t readFlippedInteger(FILE *filePath);
+  bool readMNIST(const string imagesFilePath, const string labelsFilePath, Mat& imageData, Mat& labelData);
+  int32_t readFlippedInteger(ifstream& filePath);
   Ptr<ml::KNearest> knn;
 };
 
