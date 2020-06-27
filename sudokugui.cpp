@@ -378,35 +378,16 @@ void SudokuGui::handlePictureInputSelected()
         tempMat.row(0).copyTo(numberSquares.row(x + y * 9));
       }
     }
-    /*Mat imageToVisualise(28, 28, CV_8U);
-    for (int y = 0; y < 9; y++)
-    {
-        for (int x = 0; x < 9; x++)
-        {
-            for (int i = 0; i < 28; i++)
-            {
-                for (int j = 0; j < 28; j++)
-                {
-                    imageToVisualise.at<uchar>(i, j) = numberSquares.at<uchar>(x + y*9 ,j + i * 28);
-                }
-            }
-            imshow(format("%d", x + y * 9), imageToVisualise);
-        }
-    }*/
-    
+    Mat imageToVisualise(28, 28, CV_8U);
+    imageToVisualise = numberSquares.row(0).reshape(28, 28);
+    cout << imageToVisualise << endl;
+
     //Next steps
     //Preprocess number images by deskewing and centering them!!!
     //Change clasify function to work one image at a time perhaps
     //Compare the effectiveness of K-nearest neighbor (kNN) and support vector machines(SVM)
     //train algorithm using MNIST data set (big endian)
     //Neaten up code into functions and objects
-
-    KnnNumberRecogniser digitRecogniser;
-    //digitRecogniser.trainAndTest();
-    digitRecogniser.train("train-images.idx3-ubyte","train-labels.idx1-ubyte");
-    //cout << "Test Result: " << digitRecogniser.test("t10k-images.idx3-ubyte","t10k-labels.idx1-ubyte") << endl;
-    vector<int> results = digitRecogniser.identifyNumbers(numberSquares);
-
     String windowName = "SudokuImage"; //Name of the window
 
     namedWindow(windowName); // Create a window
@@ -416,6 +397,14 @@ void SudokuGui::handlePictureInputSelected()
     waitKey(0); // Wait for any keystroke in the window
 
     destroyWindow(windowName); //destroy the created window
+
+    KnnNumberRecogniser digitRecogniser;
+    //digitRecogniser.trainAndTest();
+    digitRecogniser.train("train-images.idx3-ubyte","train-labels.idx1-ubyte");
+    //cout << "Test Result: " << digitRecogniser.test("t10k-images.idx3-ubyte","t10k-labels.idx1-ubyte") << endl;
+    vector<int> results = digitRecogniser.identifyNumbers(numberSquares);
+
+
 
 }
 
