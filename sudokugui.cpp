@@ -356,12 +356,13 @@ void SudokuGui::handlePictureInputSelected()
     //This algorithm chooses the threshold for each pixel  depending on a small region surrounding said pixel
     //https://docs.opencv.org/3.4/d7/d4d/tutorial_py_thresholding.html
     adaptiveThreshold(transformedImage, thresholdedTransformedImage, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY_INV, 101, 1);
-    vector<Rect> numberSquareRects;
-    Mat numberSquares(81,28*28,CV_8U); //store images row-wise by pixel data
-    int numberSquareSideLength = ceil(imageSideLength / 9);
-    //cout << imageSideLength << endl;
+    
+    
     cv::resize(thresholdedTransformedImage, thresholdedTransformedImage, Size(252, 252), 0, 0, INTER_LINEAR);
     imshow("resized", thresholdedTransformedImage);
+
+    //For loops iterate through image and takes each number square and 'unwraps' it to be stored as one row in the number squares mat
+    Mat numberSquares(81, 28 * 28, CV_8U); //store images row-wise by pixel data
     for(int y = 0; y < 9 ; y++)
     {
       for(int x = 0; x < 9; x++)
@@ -379,10 +380,48 @@ void SudokuGui::handlePictureInputSelected()
       }
     }
     Mat imageToVisualise(28, 28, CV_8U);
-    imageToVisualise = numberSquares.row(0).reshape(28, 28);
+
+
+    imageToVisualise = numberSquares.row(6).reshape(1, 28);
+
+    /*Test removing all noise manually to see if knn can recognise
+    for (int i = 0; i < 28; i++)
+    {
+        imageToVisualise.at<uchar>(0, i) = 0;
+        imageToVisualise.at<uchar>(1, i) = 0;
+        imageToVisualise.at<uchar>(27, i) = 0;
+        imageToVisualise.at<uchar>(26, i) = 0;
+        imageToVisualise.at<uchar>(25, i) = 0;
+        imageToVisualise.at<uchar>(24, i) = 0;
+        imageToVisualise.at<uchar>(23, i) = 0;
+        imageToVisualise.at<uchar>(i, 0) = 0;
+        imageToVisualise.at<uchar>(i, 1) = 0;
+        imageToVisualise.at<uchar>(i, 2) = 0;
+        imageToVisualise.at<uchar>(i, 27) = 0;
+        imageToVisualise.at<uchar>(i, 26) = 0;
+        imageToVisualise.at<uchar>(i, 25) = 0;
+    }
+    for (int i = 27-2; i > 1; i--)
+    {
+        for (int j = 0; j < 28; j++)
+        {
+            imageToVisualise.at<uchar>(i + 2, j) = imageToVisualise.at<uchar>(i, j);
+        }
+    }
+    for (int i = 0; i < 28; i++)
+    {
+        imageToVisualise.at<uchar>(2, i) = 0;
+        imageToVisualise.at<uchar>(3, i) = 0;
+    }
+    numberSquares.row(6) = imageToVisualise.reshape(1, 1);
+    imshow("Test", imageToVisualise);
     cout << imageToVisualise << endl;
+    */
+
+    //Unfortunately even when removing noise from the image and centering, knn still has issues differentiating between 1s,2s and 7s. This is likely a side effect of using handwritten digits to train.
 
     //Next steps
+    //Identify blank squares before sending to identifier
     //Preprocess number images by deskewing and centering them!!!
     //Change clasify function to work one image at a time perhaps
     //Compare the effectiveness of K-nearest neighbor (kNN) and support vector machines(SVM)

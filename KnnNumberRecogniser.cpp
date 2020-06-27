@@ -117,7 +117,7 @@ vector<int> KnnNumberRecogniser::identifyNumbers(Mat images)
 
     for (int i = 0; i < images.rows; i++)
     {
-        results[i] = (int)knn->findNearest(images, knn->getDefaultK(), resultMat);
+        results[i] = (int)knn->findNearest(images.row(i), knn->getDefaultK(), resultMat);
         cout << "Sudoku Square " << i << " prediction: " << results[i] << endl;
     }
     return results;
