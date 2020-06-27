@@ -437,7 +437,7 @@ void SudokuGui::handlePictureInputSelected()
 
     destroyWindow(windowName); //destroy the created window
 
-    KnnNumberRecogniser digitRecogniser;
+    KNN digitRecogniser;
     //digitRecogniser.trainAndTest();
     digitRecogniser.train("train-images.idx3-ubyte","train-labels.idx1-ubyte");
     //cout << "Test Result: " << digitRecogniser.test("t10k-images.idx3-ubyte","t10k-labels.idx1-ubyte") << endl;

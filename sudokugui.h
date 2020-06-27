@@ -12,7 +12,8 @@
 #include <vector>
 
 #include "SudokuBoard.h"
-#include "KnnNumberRecogniser.h"
+#include "NumberRecogniser.h"
+#include "KNN.h"
 
 using namespace cv;
 using namespace std;
