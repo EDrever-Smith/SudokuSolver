@@ -5,10 +5,7 @@ KNN::KNN()
 	knn = ml::KNearest::create();
 }
 
-KNN::~KNN()
-{
-	delete knn;
-}
+KNN::~KNN(){}
 
 bool KNN::train(const string imagesFilePath, const string labelsFilePath)
 {
@@ -49,16 +46,16 @@ float KNN::test(const string imagesFilePath, const string labelsFilePath)
     return correctCount / testImages.rows;
 }
 
-vector<int> KNN::identifyNumbers(Mat images)
+vector<int> KNN::identifyNumbers(Mat image)
 {
-    vector<int> results;
-    results.resize(images.rows);
+    Mat numberSquares = NumberRecogniser::preprocessImages(image);
+    results.resize(numberSquares.rows);
     Mat resultMat;
-    images.convertTo(images, CV_32FC1);
+    numberSquares.convertTo(numberSquares, CV_32FC1);
 
-    for (int i = 0; i < images.rows; i++)
+    for (int i = 0; i < numberSquares.rows; i++)
     {
-        results[i] = (int)knn->findNearest(images.row(i), knn->getDefaultK(), resultMat);
+        results[i] = (int)knn->findNearest(numberSquares.row(i), knn->getDefaultK(), resultMat);
         cout << "Sudoku Square " << i << " prediction: " << results[i] << endl;
     }
     return results;

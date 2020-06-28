@@ -18,12 +18,13 @@ public:
 
   virtual bool train(const string imagesFilePath, const string labelsFilePath) = 0;
   virtual float test(const string imagesFilePath, const string labelsFilePath) = 0;
-  virtual vector<int> identifyNumbers(Mat images) = 0;
+  virtual vector<int> identifyNumbers(Mat image) = 0;
 
 protected:
   Mat preprocessImages(Mat image);
   bool readMNIST(const string imagesFilePath, const string labelsFilePath, Mat& imageData, Mat& labelData);
   int32_t readFlippedInteger(ifstream& filePath);
+  vector<int> results;
 };
 
 #endif //NUMBER_RECOGNISER_H_INCLUDED

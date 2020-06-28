@@ -21,11 +21,13 @@ find_package( OpenCV REQUIRED )
 set( UIS mainwindow.ui )
 qt5_wrap_ui( UI_Srcs ${UIS} )
 
+# TODO Sort out directory and make libraries
 add_executable(SudokuApp main.cpp ${UI_Srcs} ${QRC_Srcs}
 	NumberSquare.h NumberSquare.cpp
 	SudokuBoard.h SudokuBoard.cpp
 	sudokugui.h sudokugui.cpp sudokugui.ui
 	NumberRecogniser.h NumberRecogniser.cpp
+	ImageProcessing.h ImageProcessing.cpp
 	KNN.h KNN.cpp)
 
 # Tell CMake that the executable depends on the Qt::Widget libraries.

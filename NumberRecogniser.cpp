@@ -59,8 +59,32 @@ bool NumberRecogniser::readMNIST(const string imagesFilePath, const string label
     return true;
 }
 
-
+//Function that takes image that has been perspective transformed and isolates each square and returns their pixel data on each row of output mat
 Mat NumberRecogniser::preprocessImages(Mat image)
 {
-   return image;
+    //We use adaptive thresholding since the lighting can vary throughout the image.
+    //This algorithm chooses the threshold for each pixel  depending on a small region surrounding said pixel
+    //https://docs.opencv.org/3.4/d7/d4d/tutorial_py_thresholding.html
+    adaptiveThreshold(image, image, 255, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY_INV, 101, 1);
+
+    cv::resize(image, image, Size(252, 252), 0, 0, INTER_LINEAR);
+    //For loops iterate through image and takes each number square and 'unwraps' it to be stored as one row in the number squares mat
+    Mat numberSquares(81, 28 * 28, CV_8U); //store images row-wise by pixel data
+    for (int y = 0; y < 9; y++)
+    {
+        for (int x = 0; x < 9; x++)
+        {
+            Mat tempMat(28 * 28, 1, CV_8U);
+            for (int j = 0; j < 28; j++)
+            {
+                for (int i = 0; i < 28; i++)
+                {
+                    tempMat.at<uchar>(i + j * 28) = image.at<uchar>(j + y * 28, i + x * 28);
+                }
+            }
+            tempMat = tempMat.t();
+            tempMat.row(0).copyTo(numberSquares.row(x + y * 9));
+        }
+    }
+   return numberSquares;
 }
