@@ -1,6 +1,11 @@
 #include "NumberRecogniser.h"
 
-NumberRecogniser::NumberRecogniser() {}
+NumberRecogniser::NumberRecogniser() 
+{
+    results.resize(81);
+    for (int i = 0; i < 81; i++)
+        results[i] = -1;
+}
 
 NumberRecogniser::~NumberRecogniser() {}
 
@@ -85,6 +90,48 @@ Mat NumberRecogniser::preprocessImages(Mat image)
             tempMat = tempMat.t();
             tempMat.row(0).copyTo(numberSquares.row(x + y * 9));
         }
+    }
+    for (int i = 0; i < 81; i++)
+    {
+        /* Attempt to remove outer lines, in some case outerline intersected number and so number was also erased.
+        Mat tempSquare(28, 28, CV_8U);
+        tempSquare = numberSquares.row(i).reshape(1, 28);
+        for (int j = 0; j < tempSquare.rows; j++)
+        {
+            floodFill(tempSquare, Point(0, j), Scalar(0, 0, 0));
+            floodFill(tempSquare, Point(j, 0), Scalar(0, 0, 0));
+            floodFill(tempSquare, Point(tempSquare.cols - 1, j), Scalar(0, 0, 0));
+            floodFill(tempSquare, Point(j, tempSquare.rows - 1), Scalar(0, 0, 0));
+        }
+        imshow("Image", tempSquare);
+        waitKey(0);
+        */
+
+        //Determine which squares are blank ... Pixel sums are too close between squares containing numbers and those without. Try looking at inner section to determine.
+        /*int sumPixelValues = 0;
+        for (int j = 0; j < numberSquares.cols; j++)
+        {
+            sumPixelValues += (int)numberSquares.at<uchar>(i, j);
+        }
+        cout << "Square " << i << " sum: " << sumPixelValues << endl;
+        */
+
+        Mat tempSquare(28, 28, CV_8U);
+        tempSquare = numberSquares.row(i).reshape(1, 28);
+        //imshow("Image", tempSquare);
+        //waitKey(0);
+        int innerSquareLength = 10;
+        int sumPixelValues = 0;
+        for (int j = (28 - innerSquareLength) / 2; j < (28 + innerSquareLength) / 2; j++)
+        {
+            for (int k = (28 - innerSquareLength) / 2; k < (28 + innerSquareLength) / 2; k++)
+            {
+                sumPixelValues += (int)tempSquare.at<uchar>(j, k);
+            }
+        }
+        if (sumPixelValues < 5000) //blank square detected
+            results[i] = 0;
+
     }
    return numberSquares;
 }

@@ -15,6 +15,7 @@ public:
     bool isLegal(int id, int num);
     bool SolveSudoku(); //returns false if no solution exists
     void clearBoard();
+    void setBoard(std::vector<int>& board);
 
     friend std::ostream& operator<<(std::ostream& out, const SudokuBoard& s);
 private:

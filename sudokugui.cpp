@@ -254,7 +254,7 @@ void SudokuGui::handlePictureInputSelected()
     GaussianBlur(originalImage, blurredImage, Size(11,11),0);
     //imshow("Blurred Grey Image", blurredImage);
 
-    Mat mainOutline = Mat(originalImage.size(),  CV_8U);  //CV_8UC1 = 8-bit unsigned int
+    Mat mainOutline = Mat(originalImage.size(),  CV_8U);  //CV_8U = 8-bit unsigned int
     adaptiveThreshold(blurredImage, mainOutline, 255, ADAPTIVE_THRESH_MEAN_C, THRESH_BINARY_INV, 5, 2);
     //imshow("Adaptive Thresholded", mainOutline);
 
@@ -303,6 +303,8 @@ void SudokuGui::handlePictureInputSelected()
     digitRecogniser.train("train-images.idx3-ubyte","train-labels.idx1-ubyte");
     //cout << "Test Result: " << digitRecogniser.test("t10k-images.idx3-ubyte","t10k-labels.idx1-ubyte") << endl;
     vector<int> results = digitRecogniser.identifyNumbers(transformedImage);
+    board.setBoard(results);
+    displaySudokuBoard(board);
 }
 
 void SudokuGui::clearUiAndBoard()

@@ -55,8 +55,11 @@ vector<int> KNN::identifyNumbers(Mat image)
 
     for (int i = 0; i < numberSquares.rows; i++)
     {
-        results[i] = (int)knn->findNearest(numberSquares.row(i), knn->getDefaultK(), resultMat);
-        cout << "Sudoku Square " << i << " prediction: " << results[i] << endl;
+        if (results[i] != 0) //If not blank square
+        {
+            results[i] = (int)knn->findNearest(numberSquares.row(i), knn->getDefaultK(), resultMat);
+        }
+        //cout << "Sudoku Square " << i << " prediction: " << results[i] << endl;
     }
     return results;
 }
