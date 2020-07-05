@@ -16,6 +16,7 @@
 #include "NumberRecogniser.h"
 #include "ImageProcessing.h"
 #include "KNN.h"
+#include "SVM.h"
 
 using namespace cv;
 using namespace std;

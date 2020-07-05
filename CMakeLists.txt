@@ -28,7 +28,7 @@ add_executable(SudokuApp main.cpp ${UI_Srcs} ${QRC_Srcs}
 	sudokugui.h sudokugui.cpp sudokugui.ui
 	NumberRecogniser.h NumberRecogniser.cpp
 	ImageProcessing.h ImageProcessing.cpp
-	KNN.h KNN.cpp)
+	KNN.h KNN.cpp SVM.h SVM.cpp)
 
 # Tell CMake that the executable depends on the Qt::Widget libraries.
 target_link_libraries( SudokuApp Qt5::Widgets ${OpenCV_LIBS})

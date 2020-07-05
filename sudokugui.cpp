@@ -299,7 +299,7 @@ void SudokuGui::handlePictureInputSelected()
     waitKey(0);
     destroyWindow(windowName);
 
-    KNN digitRecogniser;
+    SVM digitRecogniser;
     digitRecogniser.train("train-images.idx3-ubyte","train-labels.idx1-ubyte");
     //cout << "Test Result: " << digitRecogniser.test("t10k-images.idx3-ubyte","t10k-labels.idx1-ubyte") << endl;
     vector<int> results = digitRecogniser.identifyNumbers(transformedImage);
