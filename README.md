@@ -5,6 +5,8 @@ Dependencies: Qt, OpenCV
 + Use computer vision to allow the program to solve sudokus through a camera in real time. []
 ## Additional Goals
 + Generate 'random' solvable sudokus or the user to solve []
+    + Generate random completed sudoku [x]
+    + Make squares blank whilst still leaving enough clues []
 + Gameify the program (Timer, Leaderboard etc.) []
 + Visualise the process of how the sudoku is solved []
 ### To-Do List
