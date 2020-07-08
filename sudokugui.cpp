@@ -155,6 +155,7 @@ void SudokuGui::handleModeSelect(int modeSelected)
         //Setup timer
         //Setup Generator/Manual input
         //Setup hint functionality
+        connect(generateGameBoardButton, SIGNAL(released()), this, SLOT(handleGenerateGameBoard()));
         break;
     case 1:
         ui->solveRadioButton->setEnabled(false);
@@ -307,6 +308,11 @@ void SudokuGui::handlePictureInputSelected()
     displaySudokuBoard(board);
 }
 
+void SudokuGui::handleGenerateGameBoard()
+{
+    board.generateSolvableSudoku();
+    displaySudokuBoard(board);
+}
 void SudokuGui::clearUiAndBoard()
 {
     //Not using SudokuBoard's clearBoard function as would require two loops to clear both Ui and board data

@@ -39,6 +39,7 @@ private slots:
     void handleManualInputSelected();
     void handleVideoInputSelected();
     void handlePictureInputSelected();
+    void handleGenerateGameBoard();
     void clearUiAndBoard();
 
 private:
