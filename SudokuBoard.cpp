@@ -259,8 +259,35 @@ bool SudokuBoard::generateRandomFilledSudoku()
     }
     return false;
 }
-
-void SudokuBoard::generateSolvableSudoku()
+//Function which removes numbers from a filled in sudoku. Number depends on difficulty (0 = easy, 1 = medium, 2 = hard)
+//This function in no way ensures that there is only one solution or that it is solvable without guessing
+//Difficulty is a rough  guide since numbers removed are entierly random, any other method would be too time consuming for real time generation
+void SudokuBoard::generateSolvableSudoku(int difficulty)
 {
     generateRandomFilledSudoku();
+
+    int easyRemoves = 45;
+    int mediumRemoves = 50;
+    int hardRemoves = 55;
+
+    std::vector<int> randomArray(81, 0);
+    for (int i = 0; i < 81; i++)
+        randomArray[i] = i;
+    std::random_shuffle(randomArray.begin(), randomArray.end());
+
+    switch (difficulty)
+    {
+    case 0:
+        for (int i = 0; i < easyRemoves; i++)
+            board[*(randomArray.begin() + i)].setVal(0);
+        break;
+    case 1:
+        for (int i = 0; i < mediumRemoves; i++)
+            board[*(randomArray.begin() + i)].setVal(0);
+        break;
+    case 2:
+        for (int i = 0; i < hardRemoves; i++)
+            board[*(randomArray.begin() + i)].setVal(0);
+        break;
+    }
 }

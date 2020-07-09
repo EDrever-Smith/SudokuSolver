@@ -19,7 +19,7 @@ public:
     bool SolveSudoku(); //returns false if no solution exists
     void clearBoard();
     void setBoard(std::vector<int>& board);
-    void generateSolvableSudoku();
+    void generateSolvableSudoku(int difficulty = 0);
     friend std::ostream& operator<<(std::ostream& out, const SudokuBoard& s);
 private:
     NumberSquare board[81];
