@@ -18,4 +18,4 @@ Dependencies: Qt, OpenCV
 + Generate 'random' solvable sudokus or the user to solve []
     + ~~Generate random completed sudoku~~
     + Make squares blank whilst still leaving enough clues
-    + Find more efficient generation method
+    + Find more time efficient generation method or move away from real time generation
