@@ -31,7 +31,7 @@ class SudokuGui : public QWidget
 public:
     explicit SudokuGui(QWidget *parent = nullptr);
     ~SudokuGui();
-    void displaySudokuBoard(SudokuBoard& s);
+    void displaySudokuBoard();
 private slots:
     void solveCurrentBoard();
     void updateNumberSquare();

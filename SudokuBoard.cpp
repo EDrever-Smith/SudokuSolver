@@ -190,13 +190,11 @@ void SudokuBoard::setBoard(std::vector<int>& board)
     }
 }
 
-bool SudokuBoard::generateRandomFilledSudoku()
+bool SudokuBoard::generateRandomFilledSudoku(bool firstCallFlag)
 {
-    static int i = 0;
     static std::vector<int> randomCellArray(81, 0);
-    if (i == 0) //only called first time
+    if (firstCallFlag) //only called first time
     {
-        srand((unsigned int)time(NULL));  //Setup random seed
         clearBoard();
         for (int n = 0; n < 81; n++)
         {
@@ -204,11 +202,12 @@ bool SudokuBoard::generateRandomFilledSudoku()
         }
         std::random_shuffle(randomCellArray.begin(), randomCellArray.end(), randomGen);
     }
-    i++;
-    static std::vector<int>::iterator it = randomCellArray.begin();
+    static std::vector<int>::iterator it;
+    if (firstCallFlag)
+        it = randomCellArray.begin();
 
     //Base case - once iterator has reached end of array it implies all squares are filled
-    if (it == randomCellArray.end()) 
+    if (it == randomCellArray.end())
         return true;
 
     //Initialise 
@@ -242,7 +241,7 @@ bool SudokuBoard::generateRandomFilledSudoku()
                 for (int j = 0; j < 81; j++) //TODO replace this with a set function
                     this->board[j] = temp[j];
 
-                if (generateRandomFilledSudoku())
+                if (generateRandomFilledSudoku(false))
                     return true;
                 else
                 {
@@ -259,11 +258,13 @@ bool SudokuBoard::generateRandomFilledSudoku()
     }
     return false;
 }
+
 //Function which removes numbers from a filled in sudoku. Number depends on difficulty (0 = easy, 1 = medium, 2 = hard)
 //This function in no way ensures that there is only one solution or that it is solvable without guessing
 //Difficulty is a rough  guide since numbers removed are entierly random, any other method would be too time consuming for real time generation
 void SudokuBoard::generateSolvableSudoku(int difficulty)
 {
+    srand((unsigned int)time(NULL));  //Setup random seed
     generateRandomFilledSudoku();
 
     int easyRemoves = 45;

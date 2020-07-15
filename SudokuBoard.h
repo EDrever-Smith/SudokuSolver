@@ -25,7 +25,7 @@ private:
     NumberSquare board[81];
     bool findBlank(int& id); //returns false if no blanks are found
     bool findBlank(); //returns false if no blanks are found
-    bool generateRandomFilledSudoku();
+    bool generateRandomFilledSudoku(bool firstCallFlag = true);
 };
 
 #endif // SUDOKUBOARD_H_INCLUDED

@@ -24,8 +24,9 @@ SudokuGui::SudokuGui(QWidget *parent) :
                                   0,0,5, 2,0,6, 3,0,0};
     //board = SudokuBoard(inputSudoku);
     board = SudokuBoard();
-    displaySudokuBoard(board);
+    displaySudokuBoard();
 
+    modeButtons = new QButtonGroup(this);
     modeButtons = new QButtonGroup(this);
     modeButtons->addButton(ui->playRadioButton,0);
     modeButtons->addButton(ui->solveRadioButton,1);
@@ -111,12 +112,14 @@ void SudokuGui::updateNumberSquare()
         }
     }
 }
-void SudokuGui::displaySudokuBoard(SudokuBoard &s)
+void SudokuGui::displaySudokuBoard()
 {
     for(int i = 0; i < 81; i++)
     {
-        if(!(s[i].getVal() == 0))
-            lineEditsArray[i]->setText(tr("%1").arg(s[i].getVal()));
+        if(!(this->board[i].getVal() == 0))
+            lineEditsArray[i]->setText(tr("%1").arg(this->board[i].getVal()));
+        else
+            lineEditsArray[i]->setText(tr(""));
     }
     return;
 }
@@ -125,7 +128,7 @@ void SudokuGui::solveCurrentBoard()
 {
     //TODO check case that unsolvable
     board.SolveSudoku();
-    displaySudokuBoard(board);
+    displaySudokuBoard();
 }
 
 void SudokuGui::handleModeSelect(int modeSelected)
@@ -305,13 +308,15 @@ void SudokuGui::handlePictureInputSelected()
     //cout << "Test Result: " << digitRecogniser.test("t10k-images.idx3-ubyte","t10k-labels.idx1-ubyte") << endl;
     vector<int> results = digitRecogniser.identifyNumbers(transformedImage);
     board.setBoard(results);
-    displaySudokuBoard(board);
+    displaySudokuBoard();
 }
 
 void SudokuGui::handleGenerateGameBoard()
 {
-    board.generateSolvableSudoku();
-    displaySudokuBoard(board);
+    clearUiAndBoard();
+    ui->solveButton->setEnabled(true);
+    this->board.generateSolvableSudoku();
+    displaySudokuBoard();
 }
 void SudokuGui::clearUiAndBoard()
 {
