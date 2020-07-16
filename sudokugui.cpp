@@ -99,6 +99,7 @@ void SudokuGui::generateLabels()
 void SudokuGui::updateNumberSquare()
 {
     QObject* obj = sender(); //gets a pointer to the object which sent the signal
+    //For manual input do the following
     for(int i = 0; i < 81; i++)
     {
         if(obj == lineEditsArray[i])
@@ -111,6 +112,7 @@ void SudokuGui::updateNumberSquare()
             else lineEditsArray[i]->setText(tr("")); //Users desired input breaks rules
         }
     }
+    //for playing game do the following
 }
 void SudokuGui::displaySudokuBoard()
 {
@@ -314,9 +316,20 @@ void SudokuGui::handlePictureInputSelected()
 void SudokuGui::handleGenerateGameBoard()
 {
     clearUiAndBoard();
-    ui->solveButton->setEnabled(true);
-    this->board.generateSolvableSudoku();
+    
+
+    vector<int> blankIDs;
+    this->board.generateSolvableSudoku(blankIDs);
+
     displaySudokuBoard();
+    ui->solveButton->setEnabled(true);
+
+    //Makes only blanks writable
+    for (int i = 0; i < 81; i++)
+        lineEditsArray[i]->setReadOnly(true);
+    for (int i = 0; i < blankIDs.size(); i++)
+        lineEditsArray[blankIDs[i]]->setReadOnly(false);
+
 }
 void SudokuGui::clearUiAndBoard()
 {

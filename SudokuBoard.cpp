@@ -262,14 +262,14 @@ bool SudokuBoard::generateRandomFilledSudoku(bool firstCallFlag)
 //Function which removes numbers from a filled in sudoku. Number depends on difficulty (0 = easy, 1 = medium, 2 = hard)
 //This function in no way ensures that there is only one solution or that it is solvable without guessing
 //Difficulty is a rough  guide since numbers removed are entierly random, any other method would be too time consuming for real time generation
-void SudokuBoard::generateSolvableSudoku(int difficulty)
+void SudokuBoard::generateSolvableSudoku(std::vector<int>& blankIDs, int difficulty)
 {
     srand((unsigned int)time(NULL));  //Setup random seed
     generateRandomFilledSudoku();
 
-    int easyRemoves = 45;
-    int mediumRemoves = 50;
-    int hardRemoves = 55;
+    int easyRemoves = 40;
+    int mediumRemoves = 45;
+    int hardRemoves = 50;
 
     std::vector<int> randomArray(81, 0);
     for (int i = 0; i < 81; i++)
@@ -279,16 +279,28 @@ void SudokuBoard::generateSolvableSudoku(int difficulty)
     switch (difficulty)
     {
     case 0:
+        blankIDs.resize(easyRemoves);
         for (int i = 0; i < easyRemoves; i++)
-            board[*(randomArray.begin() + i)].setVal(0);
+        {
+            board[randomArray[i]].setVal(0);
+            blankIDs[i] = randomArray[i];
+        }
         break;
     case 1:
+        blankIDs.resize(mediumRemoves);
         for (int i = 0; i < mediumRemoves; i++)
-            board[*(randomArray.begin() + i)].setVal(0);
+        {
+            board[randomArray[i]].setVal(0);
+            blankIDs[i] = randomArray[i];
+        }
         break;
     case 2:
+        blankIDs.resize(hardRemoves);
         for (int i = 0; i < hardRemoves; i++)
-            board[*(randomArray.begin() + i)].setVal(0);
+        {
+            board[randomArray[i]].setVal(0);
+            blankIDs[i] = randomArray[i];
+        }
         break;
     }
 }
