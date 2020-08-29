@@ -39,7 +39,7 @@ private slots:
     void handleManualInputSelected();
     void handleVideoInputSelected();
     void handlePictureInputSelected();
-    void handleGenerateGameBoard();
+    void handleGenerateGameBoard(int difficulty);
     void clearUiAndBoard();
 
 private:
@@ -48,10 +48,14 @@ private:
     QLineEdit** lineEditsArray;
     SudokuBoard board;
     QButtonGroup* modeButtons;
+    QButtonGroup* difficultyButtons;
     QPushButton* manualInputButton;
     QPushButton* videoInputButton;
     QPushButton* pictureInputButton;
     QPushButton* generateGameBoardButton;
+    QPushButton* easyGameButton;
+    QPushButton* mediumGameButton;
+    QPushButton* hardGameButton;
 
     int previousModeFlag = -1;
 };
