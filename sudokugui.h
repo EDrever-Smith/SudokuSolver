@@ -9,6 +9,7 @@
 #include <QButtonGroup>
 #include <QPushButton>
 #include <QFileDialog>
+#include <QLabel>
 
 #include <vector>
 
@@ -56,6 +57,10 @@ private:
     QPushButton* easyGameButton;
     QPushButton* mediumGameButton;
     QPushButton* hardGameButton;
+    QPushButton* checkButton;
+    QPushButton* hintButton;
+    QLabel* timer;
+    QLabel* lives;
 
     int previousModeFlag = -1;
 };
